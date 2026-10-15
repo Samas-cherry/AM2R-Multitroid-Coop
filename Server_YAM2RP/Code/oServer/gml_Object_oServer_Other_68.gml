@@ -785,12 +785,12 @@ switch (type_event)
                     if (!isHostForNewRoom)
                     {
                         var curHostCID = ds_map_find_value(global.roomHostMap, clientRoom);
-                        for (var p = 0; p < ds_list_size(idList); p++)
+                        for (var hp = 0; hp < ds_list_size(idList); hp++)
                         {
-                            var arrL = ds_list_find_value(idList, p);
-                            if (arrL[0, 0] == curHostCID)
+                            var arrHost = ds_list_find_value(idList, hp);
+                            if (arrHost[0, 0] == curHostCID)
                             {
-                                var hSock = arrL[0, 1];
+                                var hSock = arrHost[0, 1];
                                 var reqSyncBuf = buffer_create(16, buffer_grow, 1);
                                 buffer_seek(reqSyncBuf, buffer_seek_start, 0);
                                 buffer_write(reqSyncBuf, buffer_s32, 0);
@@ -3262,6 +3262,20 @@ switch (type_event)
                 if (global.bufferOverflow)
                     exit;
                 
+                var clientID = -1;
+                for (var p = 0; p < ds_list_size(idList); p++)
+                {
+                    var arrL = ds_list_find_value(idList, p);
+                    if (arrL[0, 1] == socket)
+                    {
+                        clientID = arrL[0, 0];
+                        break;
+                    }
+                }
+                
+                if (clientID < 0)
+                    exit;
+                
                 var isHostForReq = 0;
                 if (!ds_map_exists(global.roomHostMap, reqRoom))
                 {
@@ -3287,12 +3301,12 @@ switch (type_event)
                 if (!isHostForReq)
                 {
                     var curHostCID = ds_map_find_value(global.roomHostMap, reqRoom);
-                    for (var p = 0; p < ds_list_size(idList); p++)
+                    for (var hp = 0; hp < ds_list_size(idList); hp++)
                     {
-                        var arrL = ds_list_find_value(idList, p);
-                        if (arrL[0, 0] == curHostCID)
+                        var arrHost = ds_list_find_value(idList, hp);
+                        if (arrHost[0, 0] == curHostCID)
                         {
-                            var hSock = arrL[0, 1];
+                            var hSock = arrHost[0, 1];
                             var reqSyncBuf = buffer_create(16, buffer_grow, 1);
                             buffer_seek(reqSyncBuf, buffer_seek_start, 0);
                             buffer_write(reqSyncBuf, buffer_s32, 0);
