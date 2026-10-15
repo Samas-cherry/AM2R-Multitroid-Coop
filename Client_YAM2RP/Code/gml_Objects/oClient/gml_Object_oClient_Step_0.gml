@@ -263,6 +263,72 @@ if (connected && !is_on_menu() && global.ingame && instance_exists(oCharacter))
     }
 }
 
+// Co-Op Shared Enemies (Regra 1 & Regra 5)
+if (connected && !is_on_menu() && global.ingame)
+{
+    var isRoomHost = 1;
+    for (var r = 0; r < ds_list_size(roomList); r++)
+    {
+        var otherCID = ds_list_find_value(roomList, r);
+        if (otherCID < global.clientID)
+            isRoomHost = 0;
+    }
+    
+    // 1. Detect defeated enemies and broadcast death (Opcode 81)
+    if (instance_exists(oEnemy))
+    {
+        with (oEnemy)
+        {
+            if (myhealth <= 0 && alarm[10] == -1)
+            {
+                alarm[10] = 60; // mark death sent
+                var deadBuf = buffer_create(64, buffer_grow, 1);
+                buffer_seek(deadBuf, buffer_seek_start, 0);
+                buffer_write(deadBuf, buffer_s32, 0);
+                buffer_write(deadBuf, buffer_u8, 81);
+                buffer_write(deadBuf, buffer_s16, room);
+                buffer_write(deadBuf, buffer_s16, round(xstart));
+                buffer_write(deadBuf, buffer_s16, round(ystart));
+                buffer_poke(deadBuf, 0, buffer_s32, buffer_tell(deadBuf) - 4);
+                network_send_packet(other.socket, deadBuf, buffer_tell(deadBuf));
+                buffer_delete(deadBuf);
+            }
+        }
+    }
+    
+    // 2. Position & HP Batch Sync from Room Host to other players in the room (Opcode 84)
+    if (sameRoom && isRoomHost && instance_exists(oEnemy))
+    {
+        enemySyncTimer--;
+        if (enemySyncTimer <= 0)
+        {
+            enemySyncTimer = 8;
+            var eCount = instance_number(oEnemy);
+            if (eCount > 0 && eCount <= 40)
+            {
+                var posBuf = buffer_create(1024, buffer_grow, 1);
+                buffer_seek(posBuf, buffer_seek_start, 0);
+                buffer_write(posBuf, buffer_s32, 0);
+                buffer_write(posBuf, buffer_u8, 84);
+                buffer_write(posBuf, buffer_s16, room);
+                buffer_write(posBuf, buffer_u16, eCount);
+                with (oEnemy)
+                {
+                    buffer_write(posBuf, buffer_s16, round(xstart));
+                    buffer_write(posBuf, buffer_s16, round(ystart));
+                    buffer_write(posBuf, buffer_s16, round(x));
+                    buffer_write(posBuf, buffer_s16, round(y));
+                    buffer_write(posBuf, buffer_s8, round(image_xscale));
+                    buffer_write(posBuf, buffer_s16, round(myhealth));
+                }
+                buffer_poke(posBuf, 0, buffer_s32, buffer_tell(posBuf) - 4);
+                network_send_packet(socket, posBuf, buffer_tell(posBuf));
+                buffer_delete(posBuf);
+            }
+        }
+    }
+}
+
 if (maxpbombsTimer == 0 && connected && !is_on_menu() && (!global.spectator || global.sax))
 {
     if (global.maxpbombsPrev != global.maxpbombs)

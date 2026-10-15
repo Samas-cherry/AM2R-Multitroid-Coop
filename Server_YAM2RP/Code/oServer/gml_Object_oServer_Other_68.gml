@@ -405,6 +405,30 @@ switch (type_event)
                 
                 if (arrList[0, 1] == socket)
                 {
+                    var disCID = arrList[0, 0];
+                    if (ds_map_exists(global.readyMap, disCID))
+                    {
+                        var disRoom = ds_map_find_value(global.readyMap, disCID);
+                        var playersRemaining = 0;
+                        for (var d = 0; d < ds_list_size(idList); d++)
+                        {
+                            var aL = ds_list_find_value(idList, d);
+                            var cId = aL[0, 0];
+                            if (cId != disCID && ds_map_exists(global.readyMap, cId))
+                            {
+                                if (ds_map_find_value(global.readyMap, cId) == disRoom)
+                                    playersRemaining++;
+                            }
+                        }
+                        if (playersRemaining == 0 && ds_map_exists(global.roomDeadMap, disRoom))
+                        {
+                            var dL = ds_map_find_value(global.roomDeadMap, disRoom);
+                            ds_list_destroy(dL);
+                            ds_map_delete(global.roomDeadMap, disRoom);
+                        }
+                        ds_map_delete(global.readyMap, disCID);
+                    }
+                    
                     findID = ds_list_find_index(samusList, arrList[0, 0]);
                     
                     if (findID >= 0)
@@ -750,8 +774,63 @@ switch (type_event)
                 if (global.bufferOverflow)
                     exit;
                 
-                var findSamus = ds_list_find_index(samusList, clientID);
+                var oldRoom = -1;
+                if (ds_map_exists(global.readyMap, clientID))
+                    oldRoom = ds_map_find_value(global.readyMap, clientID);
+                
                 ds_map_replace(global.readyMap, clientID, clientRoom);
+                
+                if (oldRoom != clientRoom)
+                {
+                    if (oldRoom >= 0)
+                    {
+                        var playersInOld = 0;
+                        for (var p = 0; p < ds_list_size(idList); p++)
+                        {
+                            var arrL = ds_list_find_value(idList, p);
+                            var chkCID = arrL[0, 0];
+                            if (chkCID != clientID && ds_map_exists(global.readyMap, chkCID))
+                            {
+                                if (ds_map_find_value(global.readyMap, chkCID) == oldRoom)
+                                    playersInOld++;
+                            }
+                        }
+                        if (playersInOld == 0 && ds_map_exists(global.roomDeadMap, oldRoom))
+                        {
+                            var dListOld = ds_map_find_value(global.roomDeadMap, oldRoom);
+                            ds_list_destroy(dListOld);
+                            ds_map_delete(global.roomDeadMap, oldRoom);
+                        }
+                    }
+                    
+                    if (ds_map_exists(global.roomDeadMap, clientRoom))
+                    {
+                        var curDeadList = ds_map_find_value(global.roomDeadMap, clientRoom);
+                        var deadCount = ds_list_size(curDeadList);
+                        if (deadCount > 0)
+                        {
+                            var dOut = buffer_create(1024, buffer_grow, 1);
+                            buffer_seek(dOut, buffer_seek_start, 0);
+                            buffer_write(dOut, buffer_s32, 0);
+                            buffer_write(dOut, buffer_u8, 85);
+                            buffer_write(dOut, buffer_s16, clientRoom);
+                            buffer_write(dOut, buffer_u16, deadCount);
+                            for (var k = 0; k < deadCount; k++)
+                            {
+                                var dCoord = ds_list_find_value(curDeadList, k);
+                                var dX = (dCoord >> 16) & 65535;
+                                if (dX > 32767) dX -= 65536;
+                                var dY = dCoord & 65535;
+                                if (dY > 32767) dY -= 65536;
+                                buffer_write(dOut, buffer_s16, dX);
+                                buffer_write(dOut, buffer_s16, dY);
+                            }
+                            buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
+                            network_send_packet(socket, dOut, buffer_tell(dOut));
+                            buffer_delete(dOut);
+                        }
+                    }
+                }
                 
                 var sockets = ds_list_size(playerList);
                 
@@ -3002,6 +3081,108 @@ switch (type_event)
                 buffer_delete(savBfr);
                 matchEndResetTimer = 780;
 
+                break;
+
+            case 81: // Enemy Defeated / Dead (room, xstart, ystart)
+                var eRoom = safe_buffer_read(_buffer, 4);
+                var eXStart = safe_buffer_read(_buffer, 4);
+                var eYStart = safe_buffer_read(_buffer, 4);
+                
+                if (global.bufferOverflow)
+                    exit;
+                
+                var dList;
+                if (!ds_map_exists(global.roomDeadMap, eRoom))
+                {
+                    dList = ds_list_create();
+                    ds_map_add(global.roomDeadMap, eRoom, dList);
+                }
+                else
+                {
+                    dList = ds_map_find_value(global.roomDeadMap, eRoom);
+                }
+                
+                var packedCoord = ((eXStart & 65535) << 16) | (eYStart & 65535);
+                if (ds_list_find_index(dList, packedCoord) == -1)
+                    ds_list_add(dList, packedCoord);
+                
+                var fwdBuf = buffer_create(64, buffer_grow, 1);
+                buffer_seek(fwdBuf, buffer_seek_start, 0);
+                buffer_write(fwdBuf, buffer_s32, 0);
+                buffer_write(fwdBuf, buffer_u8, 81);
+                buffer_write(fwdBuf, buffer_s16, eRoom);
+                buffer_write(fwdBuf, buffer_s16, eXStart);
+                buffer_write(fwdBuf, buffer_s16, eYStart);
+                buffer_poke(fwdBuf, 0, buffer_s32, buffer_tell(fwdBuf) - 4);
+                
+                for (var s = 0; s < ds_list_size(playerList); s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                        network_send_packet(destSocket, fwdBuf, buffer_tell(fwdBuf));
+                }
+                buffer_delete(fwdBuf);
+                break;
+
+            case 82: // Enemy HP sync (room, xstart, ystart, hp)
+                var eRoom = safe_buffer_read(_buffer, 4);
+                var eXStart = safe_buffer_read(_buffer, 4);
+                var eYStart = safe_buffer_read(_buffer, 4);
+                var eHP = safe_buffer_read(_buffer, 4);
+                
+                if (global.bufferOverflow)
+                    exit;
+                
+                var fwdHp = buffer_create(64, buffer_grow, 1);
+                buffer_seek(fwdHp, buffer_seek_start, 0);
+                buffer_write(fwdHp, buffer_s32, 0);
+                buffer_write(fwdHp, buffer_u8, 82);
+                buffer_write(fwdHp, buffer_s16, eRoom);
+                buffer_write(fwdHp, buffer_s16, eXStart);
+                buffer_write(fwdHp, buffer_s16, eYStart);
+                buffer_write(fwdHp, buffer_s16, eHP);
+                buffer_poke(fwdHp, 0, buffer_s32, buffer_tell(fwdHp) - 4);
+                
+                for (var s = 0; s < ds_list_size(playerList); s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                        network_send_packet(destSocket, fwdHp, buffer_tell(fwdHp));
+                }
+                buffer_delete(fwdHp);
+                break;
+
+            case 84: // Enemy Position & HP Batch sync (room, count, [xstart, ystart, x, y, scale, hp])
+                var eRoom = safe_buffer_read(_buffer, 4);
+                var eCount = safe_buffer_read(_buffer, 2);
+                
+                if (global.bufferOverflow)
+                    exit;
+                
+                var fwdPos = buffer_create(1024, buffer_grow, 1);
+                buffer_seek(fwdPos, buffer_seek_start, 0);
+                buffer_write(fwdPos, buffer_s32, 0);
+                buffer_write(fwdPos, buffer_u8, 84);
+                buffer_write(fwdPos, buffer_s16, eRoom);
+                buffer_write(fwdPos, buffer_u16, eCount);
+                for (var k = 0; k < eCount; k++)
+                {
+                    buffer_write(fwdPos, buffer_s16, safe_buffer_read(_buffer, 2)); // xstart
+                    buffer_write(fwdPos, buffer_s16, safe_buffer_read(_buffer, 2)); // ystart
+                    buffer_write(fwdPos, buffer_s16, safe_buffer_read(_buffer, 2)); // x
+                    buffer_write(fwdPos, buffer_s16, safe_buffer_read(_buffer, 2)); // y
+                    buffer_write(fwdPos, buffer_s8, safe_buffer_read(_buffer, 1));  // image_xscale
+                    buffer_write(fwdPos, buffer_s16, safe_buffer_read(_buffer, 2)); // myhealth
+                }
+                buffer_poke(fwdPos, 0, buffer_s32, buffer_tell(fwdPos) - 4);
+                
+                for (var s = 0; s < ds_list_size(playerList); s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                        network_send_packet(destSocket, fwdPos, buffer_tell(fwdPos));
+                }
+                buffer_delete(fwdPos);
                 break;
         }
         

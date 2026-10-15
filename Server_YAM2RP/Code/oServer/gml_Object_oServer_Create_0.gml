@@ -139,3 +139,4 @@ else
 
 global.kickReason = 255;
 matchEndResetTimer = 0;
+global.roomDeadMap = ds_map_create();

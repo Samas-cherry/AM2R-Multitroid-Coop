@@ -27,6 +27,7 @@ connected = 0;
 queenHealthWait = 0;
 queenDead = 0;
 sameRoom = 0;
+enemySyncTimer = 10;
 queenHealth = global.mod_queenHstart + (global.mtanks * 10);
 phase = 0;
 maxpbombsTimer = 10;

@@ -1516,6 +1516,102 @@ switch (type_event)
                 }
                 break;
             
+            case 81: // Enemy Defeated / Dead
+                var eRoom = buffer_read(_buffer, buffer_s16);
+                var eXStart = buffer_read(_buffer, buffer_s16);
+                var eYStart = buffer_read(_buffer, buffer_s16);
+                
+                if (room == eRoom)
+                {
+                    with (oEnemy)
+                    {
+                        if (round(xstart) == eXStart && round(ystart) == eYStart)
+                        {
+                            myhealth = 0;
+                            instance_destroy();
+                        }
+                    }
+                }
+                break;
+            
+            case 82: // Enemy HP sync
+                var eRoom = buffer_read(_buffer, buffer_s16);
+                var eXStart = buffer_read(_buffer, buffer_s16);
+                var eYStart = buffer_read(_buffer, buffer_s16);
+                var eHP = buffer_read(_buffer, buffer_s16);
+                
+                if (room == eRoom)
+                {
+                    with (oEnemy)
+                    {
+                        if (round(xstart) == eXStart && round(ystart) == eYStart)
+                        {
+                            if (myhealth > eHP)
+                                myhealth = eHP;
+                        }
+                    }
+                }
+                break;
+            
+            case 84: // Enemy Position Batch sync (applied by non-host)
+                var eRoom = buffer_read(_buffer, buffer_s16);
+                var eCount = buffer_read(_buffer, buffer_u16);
+                
+                var isHost = 1;
+                for (var r = 0; r < ds_list_size(roomList); r++)
+                {
+                    var otherCID = ds_list_find_value(roomList, r);
+                    if (otherCID < global.clientID)
+                        isHost = 0;
+                }
+                
+                if (room == eRoom && !isHost)
+                {
+                    for (var k = 0; k < eCount; k++)
+                    {
+                        var eXStart = buffer_read(_buffer, buffer_s16);
+                        var eYStart = buffer_read(_buffer, buffer_s16);
+                        var curX = buffer_read(_buffer, buffer_s16);
+                        var curY = buffer_read(_buffer, buffer_s16);
+                        var curScale = buffer_read(_buffer, buffer_s8);
+                        var curHP = buffer_read(_buffer, buffer_s16);
+                        
+                        with (oEnemy)
+                        {
+                            if (round(xstart) == eXStart && round(ystart) == eYStart)
+                            {
+                                x = curX;
+                                y = curY;
+                                image_xscale = curScale;
+                                if (curHP < myhealth)
+                                    myhealth = curHP;
+                            }
+                        }
+                    }
+                }
+                break;
+            
+            case 85: // Dead enemies list on room entry
+                var eRoom = buffer_read(_buffer, buffer_s16);
+                var deadCount = buffer_read(_buffer, buffer_u16);
+                
+                if (room == eRoom)
+                {
+                    for (var k = 0; k < deadCount; k++)
+                    {
+                        var dXStart = buffer_read(_buffer, buffer_s16);
+                        var dYStart = buffer_read(_buffer, buffer_s16);
+                        with (oEnemy)
+                        {
+                            if (round(xstart) == dXStart && round(ystart) == dYStart)
+                            {
+                                instance_destroy();
+                            }
+                        }
+                    }
+                }
+                break;
+            
             case 50:
                 var resend = 0;
                 
