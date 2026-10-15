@@ -1533,7 +1533,8 @@ switch (type_event)
                             if (idx != -1)
                             {
                                 ds_list_delete(other.activeEnemyIds, idx);
-                                ds_list_delete(other.activeEnemyCoords, idx);
+                                ds_list_delete(other.activeEnemyX, idx);
+                                ds_list_delete(other.activeEnemyY, idx);
                             }
                             myhealth = 0;
                             instance_destroy();
@@ -1574,27 +1575,84 @@ switch (type_event)
                 var eRoom = buffer_read(_buffer, buffer_s16);
                 var eCount = buffer_read(_buffer, buffer_u16);
                 
-                for (var k = 0; k < eCount; k++)
+                if (room == eRoom && !isRoomHost)
                 {
-                    var eXStart = buffer_read(_buffer, buffer_s16);
-                    var eYStart = buffer_read(_buffer, buffer_s16);
-                    var curX = buffer_read(_buffer, buffer_s16);
-                    var curY = buffer_read(_buffer, buffer_s16);
-                    var curScale = buffer_read(_buffer, buffer_s8);
-                    var curHP = buffer_read(_buffer, buffer_s16);
-                    
-                    if (room == eRoom && !isRoomHost)
+                    if (eCount == 0)
                     {
                         with (oEnemy)
                         {
-                            if (round(xstart) == eXStart && round(ystart) == eYStart)
+                            instance_destroy();
+                        }
+                        ds_list_clear(activeEnemyIds);
+                        ds_list_clear(activeEnemyX);
+                        ds_list_clear(activeEnemyY);
+                    }
+                    else
+                    {
+                        var aliveXS;
+                        var aliveYS;
+                        for (var k = 0; k < eCount; k++)
+                        {
+                            var eXStart = buffer_read(_buffer, buffer_s16);
+                            var eYStart = buffer_read(_buffer, buffer_s16);
+                            var curX = buffer_read(_buffer, buffer_s16);
+                            var curY = buffer_read(_buffer, buffer_s16);
+                            var curScale = buffer_read(_buffer, buffer_s8);
+                            var curHP = buffer_read(_buffer, buffer_s16);
+                            
+                            aliveXS[k] = eXStart;
+                            aliveYS[k] = eYStart;
+                            
+                            with (oEnemy)
                             {
-                                x = curX;
-                                y = curY;
-                                image_xscale = curScale;
-                                myhealth = curHP;
+                                if (round(xstart) == eXStart && round(ystart) == eYStart)
+                                {
+                                    x = curX;
+                                    y = curY;
+                                    image_xscale = curScale;
+                                    myhealth = curHP;
+                                }
                             }
                         }
+                        
+                        // Prune any enemy on follower that is no longer alive on the host
+                        with (oEnemy)
+                        {
+                            var foundInHost = 0;
+                            var myXS = round(xstart);
+                            var myYS = round(ystart);
+                            for (var m = 0; m < eCount; m++)
+                            {
+                                if (aliveXS[m] == myXS && aliveYS[m] == myYS)
+                                {
+                                    foundInHost = 1;
+                                    break;
+                                }
+                            }
+                            if (!foundInHost)
+                            {
+                                var idx = ds_list_find_index(other.activeEnemyIds, id);
+                                if (idx != -1)
+                                {
+                                    ds_list_delete(other.activeEnemyIds, idx);
+                                    ds_list_delete(other.activeEnemyX, idx);
+                                    ds_list_delete(other.activeEnemyY, idx);
+                                }
+                                instance_destroy();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var k = 0; k < eCount; k++)
+                    {
+                        buffer_read(_buffer, buffer_s16);
+                        buffer_read(_buffer, buffer_s16);
+                        buffer_read(_buffer, buffer_s16);
+                        buffer_read(_buffer, buffer_s16);
+                        buffer_read(_buffer, buffer_s8);
+                        buffer_read(_buffer, buffer_s16);
                     }
                 }
                 break;
@@ -1625,7 +1683,8 @@ switch (type_event)
                                 if (idx != -1)
                                 {
                                     ds_list_delete(other.activeEnemyIds, idx);
-                                    ds_list_delete(other.activeEnemyCoords, idx);
+                                    ds_list_delete(other.activeEnemyX, idx);
+                                    ds_list_delete(other.activeEnemyY, idx);
                                 }
                                 instance_destroy();
                             }

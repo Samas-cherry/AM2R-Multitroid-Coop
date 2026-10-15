@@ -700,7 +700,10 @@ switch (type_event)
                 if (ds_map_exists(global.readyMap, clientID))
                     oldRoom = ds_map_find_value(global.readyMap, clientID);
                 
-                ds_map_replace(global.readyMap, clientID, clientRoom);
+                if (!ds_map_exists(global.readyMap, clientID))
+                    ds_map_add(global.readyMap, clientID, clientRoom);
+                else
+                    ds_map_replace(global.readyMap, clientID, clientRoom);
                 
                 if (oldRoom != clientRoom)
                 {
@@ -807,7 +810,8 @@ switch (type_event)
                     if (ds_map_exists(global.roomDeadMap, clientRoom))
                     {
                         var curDeadList = ds_map_find_value(global.roomDeadMap, clientRoom);
-                        var deadCount = ds_list_size(curDeadList);
+                        var deadPairs = ds_list_size(curDeadList);
+                        var deadCount = deadPairs div 2;
                         if (deadCount > 0)
                         {
                             var dOut = buffer_create(1024, buffer_grow, 1);
@@ -816,15 +820,10 @@ switch (type_event)
                             buffer_write(dOut, buffer_u8, 85);
                             buffer_write(dOut, buffer_s16, clientRoom);
                             buffer_write(dOut, buffer_u16, deadCount);
-                            for (var k = 0; k < deadCount; k++)
+                            for (var k = 0; k < deadPairs; k += 2)
                             {
-                                var dCoord = ds_list_find_value(curDeadList, k);
-                                var dX = (dCoord >> 16) & 65535;
-                                if (dX > 32767) dX -= 65536;
-                                var dY = dCoord & 65535;
-                                if (dY > 32767) dY -= 65536;
-                                buffer_write(dOut, buffer_s16, dX);
-                                buffer_write(dOut, buffer_s16, dY);
+                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k));
+                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k + 1));
                             }
                             buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
                             network_send_packet(socket, dOut, buffer_tell(dOut));
@@ -952,7 +951,10 @@ switch (type_event)
                 if (ds_map_exists(global.readyMap, clientID))
                     oldRoom = ds_map_find_value(global.readyMap, clientID);
                 
-                ds_map_replace(global.readyMap, clientID, clientRoom);
+                if (!ds_map_exists(global.readyMap, clientID))
+                    ds_map_add(global.readyMap, clientID, clientRoom);
+                else
+                    ds_map_replace(global.readyMap, clientID, clientRoom);
                 
                 if (oldRoom != clientRoom)
                 {
@@ -980,7 +982,8 @@ switch (type_event)
                     if (ds_map_exists(global.roomDeadMap, clientRoom))
                     {
                         var curDeadList = ds_map_find_value(global.roomDeadMap, clientRoom);
-                        var deadCount = ds_list_size(curDeadList);
+                        var deadPairs = ds_list_size(curDeadList);
+                        var deadCount = deadPairs div 2;
                         if (deadCount > 0)
                         {
                             var dOut = buffer_create(1024, buffer_grow, 1);
@@ -989,15 +992,10 @@ switch (type_event)
                             buffer_write(dOut, buffer_u8, 85);
                             buffer_write(dOut, buffer_s16, clientRoom);
                             buffer_write(dOut, buffer_u16, deadCount);
-                            for (var k = 0; k < deadCount; k++)
+                            for (var k = 0; k < deadPairs; k += 2)
                             {
-                                var dCoord = ds_list_find_value(curDeadList, k);
-                                var dX = (dCoord >> 16) & 65535;
-                                if (dX > 32767) dX -= 65536;
-                                var dY = dCoord & 65535;
-                                if (dY > 32767) dY -= 65536;
-                                buffer_write(dOut, buffer_s16, dX);
-                                buffer_write(dOut, buffer_s16, dY);
+                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k));
+                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k + 1));
                             }
                             buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
                             network_send_packet(socket, dOut, buffer_tell(dOut));
@@ -3276,6 +3274,11 @@ switch (type_event)
                 if (clientID < 0)
                     exit;
                 
+                if (!ds_map_exists(global.readyMap, clientID))
+                    ds_map_add(global.readyMap, clientID, reqRoom);
+                else
+                    ds_map_replace(global.readyMap, clientID, reqRoom);
+                
                 var isHostForReq = 0;
                 if (!ds_map_exists(global.roomHostMap, reqRoom))
                 {
@@ -3323,7 +3326,8 @@ switch (type_event)
                 if (ds_map_exists(global.roomDeadMap, reqRoom))
                 {
                     var curDeadList = ds_map_find_value(global.roomDeadMap, reqRoom);
-                    var deadCount = ds_list_size(curDeadList);
+                    var deadPairs = ds_list_size(curDeadList);
+                    var deadCount = deadPairs div 2;
                     if (deadCount > 0)
                     {
                         var dOut = buffer_create(1024, buffer_grow, 1);
@@ -3332,15 +3336,10 @@ switch (type_event)
                         buffer_write(dOut, buffer_u8, 85);
                         buffer_write(dOut, buffer_s16, reqRoom);
                         buffer_write(dOut, buffer_u16, deadCount);
-                        for (var k = 0; k < deadCount; k++)
+                        for (var k = 0; k < deadPairs; k += 2)
                         {
-                            var dCoord = ds_list_find_value(curDeadList, k);
-                            var dX = (dCoord >> 16) & 65535;
-                            if (dX > 32767) dX -= 65536;
-                            var dY = dCoord & 65535;
-                            if (dY > 32767) dY -= 65536;
-                            buffer_write(dOut, buffer_s16, dX);
-                            buffer_write(dOut, buffer_s16, dY);
+                            buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k));
+                            buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k + 1));
                         }
                         buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
                         network_send_packet(socket, dOut, buffer_tell(dOut));
@@ -3368,9 +3367,21 @@ switch (type_event)
                     dList = ds_map_find_value(global.roomDeadMap, eRoom);
                 }
                 
-                var packedCoord = ((eXStart & 65535) << 16) | (eYStart & 65535);
-                if (ds_list_find_index(dList, packedCoord) == -1)
-                    ds_list_add(dList, packedCoord);
+                var found = 0;
+                var dLen = ds_list_size(dList);
+                for (var chk = 0; chk < dLen; chk += 2)
+                {
+                    if (ds_list_find_value(dList, chk) == eXStart && ds_list_find_value(dList, chk + 1) == eYStart)
+                    {
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    ds_list_add(dList, eXStart);
+                    ds_list_add(dList, eYStart);
+                }
                 
                 var fwdBuf = buffer_create(64, buffer_grow, 1);
                 buffer_seek(fwdBuf, buffer_seek_start, 0);

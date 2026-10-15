@@ -91,3 +91,6 @@ global.spectatorIndex = -1;
 global.saxmode = 0;
 global.sax = 0;
 global.moderator = 0;
+ds_list_destroy(activeEnemyIds);
+ds_list_destroy(activeEnemyX);
+ds_list_destroy(activeEnemyY);

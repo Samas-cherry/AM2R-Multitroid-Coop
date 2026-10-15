@@ -141,3 +141,4 @@ global.kickReason = 255;
 matchEndResetTimer = 0;
 global.roomDeadMap = ds_map_create();
 global.roomHostMap = ds_map_create();
+global.readyMap = ds_map_create();

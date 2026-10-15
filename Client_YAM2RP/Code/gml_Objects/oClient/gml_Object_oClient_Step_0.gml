@@ -276,12 +276,13 @@ if (connected && !is_on_menu() && global.ingame)
         lastTrackedRoom = room;
         isRoomHost = 0;
         ds_list_clear(activeEnemyIds);
-        ds_list_clear(activeEnemyCoords);
+        ds_list_clear(activeEnemyX);
+        ds_list_clear(activeEnemyY);
         with (oEnemy)
         {
             ds_list_add(other.activeEnemyIds, id);
-            var packed = ((round(xstart) & 65535) << 16) | (round(ystart) & 65535);
-            ds_list_add(other.activeEnemyCoords, packed);
+            ds_list_add(other.activeEnemyX, round(xstart));
+            ds_list_add(other.activeEnemyY, round(ystart));
         }
         
         // Request dead enemies list for this room from server (Opcode 80)
@@ -302,8 +303,8 @@ if (connected && !is_on_menu() && global.ingame)
             if (ds_list_find_index(other.activeEnemyIds, id) == -1)
             {
                 ds_list_add(other.activeEnemyIds, id);
-                var packed = ((round(xstart) & 65535) << 16) | (round(ystart) & 65535);
-                ds_list_add(other.activeEnemyCoords, packed);
+                ds_list_add(other.activeEnemyX, round(xstart));
+                ds_list_add(other.activeEnemyY, round(ystart));
             }
         }
     }
@@ -315,14 +316,12 @@ if (connected && !is_on_menu() && global.ingame)
         var eid = ds_list_find_value(activeEnemyIds, i);
         if (!instance_exists(eid))
         {
-            var pcoord = ds_list_find_value(activeEnemyCoords, i);
-            var ex = (pcoord >> 16) & 65535;
-            if (ex > 32767) ex -= 65536;
-            var ey = pcoord & 65535;
-            if (ey > 32767) ey -= 65536;
+            var ex = ds_list_find_value(activeEnemyX, i);
+            var ey = ds_list_find_value(activeEnemyY, i);
             
             ds_list_delete(activeEnemyIds, i);
-            ds_list_delete(activeEnemyCoords, i);
+            ds_list_delete(activeEnemyX, i);
+            ds_list_delete(activeEnemyY, i);
             
             var deadBuf = buffer_create(64, buffer_grow, 1);
             buffer_seek(deadBuf, buffer_seek_start, 0);
@@ -338,14 +337,14 @@ if (connected && !is_on_menu() && global.ingame)
     }
     
     // 2. Position & HP Batch Sync from Room Host to other players in the room (Opcode 84)
-    if (isRoomHost && ds_list_size(roomList) > 0 && instance_exists(oEnemy))
+    if (isRoomHost && ds_list_size(roomList) > 0)
     {
         enemySyncTimer--;
         if (enemySyncTimer <= 0)
         {
             enemySyncTimer = 5;
             var eCount = instance_number(oEnemy);
-            if (eCount > 0 && eCount <= 60)
+            if (eCount <= 60)
             {
                 var posBuf = buffer_create(1024, buffer_grow, 1);
                 buffer_seek(posBuf, buffer_seek_start, 0);
@@ -353,14 +352,17 @@ if (connected && !is_on_menu() && global.ingame)
                 buffer_write(posBuf, buffer_u8, 84);
                 buffer_write(posBuf, buffer_s16, room);
                 buffer_write(posBuf, buffer_u16, eCount);
-                with (oEnemy)
+                if (eCount > 0)
                 {
-                    buffer_write(posBuf, buffer_s16, round(xstart));
-                    buffer_write(posBuf, buffer_s16, round(ystart));
-                    buffer_write(posBuf, buffer_s16, round(x));
-                    buffer_write(posBuf, buffer_s16, round(y));
-                    buffer_write(posBuf, buffer_s8, round(image_xscale));
-                    buffer_write(posBuf, buffer_s16, round(myhealth));
+                    with (oEnemy)
+                    {
+                        buffer_write(posBuf, buffer_s16, round(xstart));
+                        buffer_write(posBuf, buffer_s16, round(ystart));
+                        buffer_write(posBuf, buffer_s16, round(x));
+                        buffer_write(posBuf, buffer_s16, round(y));
+                        buffer_write(posBuf, buffer_s8, round(image_xscale));
+                        buffer_write(posBuf, buffer_s16, round(myhealth));
+                    }
                 }
                 buffer_poke(posBuf, 0, buffer_s32, buffer_tell(posBuf) - 4);
                 network_send_packet(socket, posBuf, buffer_tell(posBuf));

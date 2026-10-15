@@ -41,3 +41,4 @@ while (!is_undefined(rKey))
 }
 ds_map_destroy(global.roomDeadMap);
 ds_map_destroy(global.roomHostMap);
+ds_map_destroy(global.readyMap);
