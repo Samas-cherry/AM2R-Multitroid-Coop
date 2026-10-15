@@ -18,7 +18,7 @@ ini_open(working_directory + "\settings.ini");
 port = ini_read_real("Settings", "port", 64198);
 maxClients = ini_read_real("Settings", "maxplayers", 16);
 password = ini_read_string("Settings", "moderatorpass", string(random_get_seed()));
-global.saxmode = ini_read_real("Settings", "StartingMode", 0);
+global.saxmode = ini_read_real("Settings", "StartingMode", 1);
 ini_close();
 load_config();
 

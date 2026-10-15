@@ -449,137 +449,19 @@ switch (type_event)
                 var checkDamage = buffer_read(_buffer, buffer_u8);
                 var checkFreeze = buffer_read(_buffer, buffer_u8);
                 var checkDir = buffer_read(_buffer, buffer_u8);
-                
-                if (checkMissile && global.playerFreeze > 151)
-                {
-                    break;
-                }
-                else
-                {
-                    if (instance_exists(oCharacter) && oCharacter.invincible == 0)
-                    {
-                        with (oCharacter)
-                        {
-                            damageDir = -1;
-                            knockbackY = -3;
-                            
-                            if (checkDir > 90 && checkDir < 270)
-                                damageDir = 1;
-                            
-                            global.multiDamageCollision = 1;
-                            
-                            if (checkBeam)
-                            {
-                                otherOBJ = 439;
-                                global.ignoreKnockback = 1;
-                            }
-                            
-                            if (checkMissile)
-                                otherOBJ = 440;
-                            
-                            if (checkMissile && checkDamage == 100)
-                                global.hitBySuper = 1;
-                            
-                            if (checkMissile && global.playerFreeze > 0 && global.playerFreeze <= 151 && !global.frozenNormally)
-                            {
-                                if (!checkFreeze || checkDamage == 100)
-                                    global.playerFreeze = 1;
-                            }
-                            
-                            if (global.frozenNormally)
-                                show_debug_message("normal freeze");
-                            
-                            if (checkFreeze && global.playerFreeze == 0 && !global.frozenNormally)
-                            {
-                                if (checkBeam && !global.freezeDisabled && global.playerFreeze == 0 && invincible == 0 && canbehit && state != IDLE && state != SAVING && state != SAVINGFX && state != SAVINGSHIPFX && state != SAVINGSHIP && state != ELEVATOR && state != GFELEVATOR)
-                                {
-                                    global.playerFreeze = 120;
-                                    damageDir = 0;
-                                    knockbackY = 0;
-                                    global.frozenByRollback = 1;
-                                    
-                                    with (oControl)
-                                    {
-                                        kLeft = 0;
-                                        kRight = 0;
-                                        kUp = 0;
-                                        kDown = 0;
-                                        kJump = 0;
-                                        kFire = 0;
-                                        kMorph = 0;
-                                        kAim = 0;
-                                        kAim2 = 0;
-                                        kMissile = 0;
-                                        kSelect = 0;
-                                    }
-                                }
-                                
-                                if (checkMissile && (checkDamage == 10 || checkDamage == 20) && !global.freezeDisabled && global.playerFreeze == 0 && invincible == 0 && canbehit && state != IDLE && state != SAVING && state != SAVINGFX && state != SAVINGSHIPFX && state != SAVINGSHIP && state != ELEVATOR && state != GFELEVATOR)
-                                {
-                                    global.playerFreeze = 120;
-                                    damageDir = 0;
-                                    knockbackY = 0;
-                                    global.frozenByRollback = 1;
-                                    
-                                    with (oControl)
-                                    {
-                                        kLeft = 0;
-                                        kRight = 0;
-                                        kUp = 0;
-                                        kDown = 0;
-                                        kJump = 0;
-                                        kFire = 0;
-                                        kMorph = 0;
-                                        kAim = 0;
-                                        kAim2 = 0;
-                                        kMissile = 0;
-                                        kSelect = 0;
-                                    }
-                                }
-                            }
-                            
-                            if (checkDamage == 100)
-                                checkDamage = 50;
-                            
-                            if (checkMissile)
-                            {
-                                if (global.playerFreeze > 0)
-                                    checkDamage *= 0.8;
-                            }
-                            
-                            if (!canbehit || state == IDLE || (state == SAVING && state == SAVINGFX) || state == SAVINGSHIPFX || state == SAVINGSHIP || state == ELEVATOR || state == GFELEVATOR)
-                                checkDamage = 0;
-                            
-                            if (!global.frozenNormally && canbehit && state != IDLE && state != SAVING && state != SAVINGFX && state != SAVINGSHIPFX && state != SAVINGSHIP && state != ELEVATOR && state != GFELEVATOR)
-                                damage_player(checkDamage, 5 * damageDir, knockbackY, 0, 0);
-                        }
-                    }
-                    
-                    break;
-                }
+                // Friendly fire is disabled in co-op mode: do not apply damage or freeze
+                break;
             
             case 111:
                 var newTeam = buffer_read(_buffer, buffer_u8);
-                
-                if (newTeam == 1)
-                    global.sax = 0;
-                
-                if (newTeam == 2)
-                    global.sax = 1;
-                
+                global.sax = 0;
                 break;
             
             case 112:
                 var saxmode = buffer_read(_buffer, buffer_u8);
                 var newTeam = buffer_read(_buffer, buffer_u8);
                 global.saxmode = saxmode;
-                
-                if (newTeam == 1)
-                    global.sax = 0;
-                
-                if (newTeam == 2)
-                    global.sax = 1;
-                
+                global.sax = 0;
                 break;
             
             case 113:
@@ -600,21 +482,10 @@ switch (type_event)
                 if (global.saxmode)
                     global.gametime = time;
                 
-                if (!lobbyLocked)
+                if (global.spectator)
                 {
-                    if (global.spectator)
-                    {
-                        global.spectator = 0;
-                        global.spectatorIndex = -1;
-                    }
-                }
-                else if (is_on_menu())
-                {
-                    if (!global.spectator)
-                    {
-                        global.spectator = 1;
-                        global.spectatorIndex = -1;
-                    }
+                    global.spectator = 0;
+                    global.spectatorIndex = -1;
                 }
                 
                 global.lobbyLocked = lobbyLocked;
@@ -623,14 +494,9 @@ switch (type_event)
             
             case 114:
                 var lobbyLocked = buffer_read(_buffer, buffer_u8);
-                
-                if (lobbyLocked)
-                {
-                    global.spectator = 1;
-                    global.spectatorIndex = -1;
-                    global.mosaic = 0;
-                }
-                
+                global.spectator = 0;
+                global.spectatorIndex = -1;
+                global.mosaic = 0;
                 global.lobbyLocked = lobbyLocked;
                 break;
             
@@ -1515,10 +1381,7 @@ switch (type_event)
                             if (instance_exists(oCharacter))
                             {
                                 pbomb = instance_create(pbombX, pbombY, oPBombMulti);
-                                
-                                if ((global.sax && !sax) || (sax && !global.sax))
-                                    pbomb.enemy = 1;
-                                
+                                pbomb.enemy = 0;
                                 pbomb.sax = sax;
                                 pbomb.myid = clientID;
                                 sfx_play(128);

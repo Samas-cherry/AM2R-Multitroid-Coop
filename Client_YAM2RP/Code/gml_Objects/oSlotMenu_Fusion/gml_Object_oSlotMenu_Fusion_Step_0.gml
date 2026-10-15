@@ -83,11 +83,8 @@ if (active)
         
         mus_fadeout(254);
         
-        if (global.lobbyLocked)
-        {
-            global.spectator = 1;
-            global.spectatorIndex = -1;
-        }
+        global.spectator = 0;
+        global.spectatorIndex = -1;
         
         if (!instance_exists(oClient))
         {

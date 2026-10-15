@@ -1,5 +1,8 @@
-if (global.spectator)
+if (global.spectator || global.multiDamageCollision)
+{
+    global.multiDamageCollision = 0;
     exit;
+}
 
 var serverdamageMult = global.damageMult;
 

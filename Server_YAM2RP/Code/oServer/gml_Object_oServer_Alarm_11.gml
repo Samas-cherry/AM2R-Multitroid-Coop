@@ -1,4 +1,4 @@
-var samCount = ds_list_size(samusList) - ds_list_size(deadList);
+var samCount = ds_list_size(samusList);
 
 if (global.event[308] > 0)
     samCount = 0;

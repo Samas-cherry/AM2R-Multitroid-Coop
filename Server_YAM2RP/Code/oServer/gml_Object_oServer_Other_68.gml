@@ -737,19 +737,7 @@ switch (type_event)
                     exit;
                 
                 var findSamus = ds_list_find_index(samusList, clientID);
-                var findDead = ds_list_find_index(deadList, clientID);
                 ds_map_replace(global.readyMap, clientID, clientRoom);
-                
-                if (findSamus != -1 && spectator && !sax)
-                {
-                    if (findDead == -1)
-                        ds_list_add(deadList, clientID);
-                }
-                if (findSamus != -1 && !spectator && !sax)
-                {
-                    if (findDead != -1)
-                        ds_list_delete(deadList, findDead);
-                }
                 
                 var sockets = ds_list_size(playerList);
                 
@@ -984,48 +972,7 @@ switch (type_event)
                 if (global.bufferOverflow)
                     exit;
                 
-                var tempSocket = -100;
-                
-                for (var i = 0; i < ds_list_size(idList); i++)
-                {
-                    var arrList = ds_list_find_value(idList, i);
-                    
-                    if (checkID == arrList[0, 0])
-                        tempSocket = arrList[0, 1];
-                }
-                
-                var lag = ds_map_find_value(map, socket);
-                var lagPositions = ds_map_find_value(posMap, tempSocket);
-                var timeToCheck = current_time;
-                
-                if (lag != undefined && lag <= 750 && lagPositions != undefined && global.exp_rollbackhits)
-                {
-                    buffer_delete(buffer);
-                    var size = 1024;
-                    var type = 1;
-                    var alignment = 1;
-                    buffer = buffer_create(size, type, alignment);
-                    buffer_seek(buffer, buffer_seek_start, 0);
-                    buffer_write(buffer, buffer_u8, 110);
-                    buffer_write(buffer, buffer_u8, checkBeam);
-                    buffer_write(buffer, buffer_u8, checkMissile);
-                    buffer_write(buffer, buffer_u8, checkDamage);
-                    buffer_write(buffer, buffer_u8, checkFreeze);
-                    buffer_write(buffer, buffer_u8, checkDir);
-                    bufferSize = buffer_tell(buffer);
-                    buffer_seek(buffer, buffer_seek_start, 0);
-                    buffer_write(buffer, buffer_s32, bufferSize);
-                    buffer_write(buffer, buffer_u8, 110);
-                    buffer_write(buffer, buffer_u8, checkBeam);
-                    buffer_write(buffer, buffer_u8, checkMissile);
-                    buffer_write(buffer, buffer_u8, checkDamage);
-                    buffer_write(buffer, buffer_u8, checkFreeze);
-                    buffer_write(buffer, buffer_u8, checkDir);
-                    
-                    if (tempSocket != -100)
-                        network_send_packet(tempSocket, buffer, buffer_tell(buffer));
-                }
-                
+                // Friendly fire disabled in co-op mode: do not forward damage packet 110
                 break;
             
             case 0:
@@ -1160,20 +1107,10 @@ switch (type_event)
                         
                         if (arrSocket == socket)
                         {
-                            if (sax == 0)
-                            {
-                                findID = ds_list_find_index(samusList, arrID);
-                                
-                                if (findID < 0)
-                                    ds_list_add(samusList, arrID);
-                            }
-                            else
-                            {
-                                findID = ds_list_find_index(saxList, arrID);
-                                
-                                if (findID < 0)
-                                    ds_list_add(saxList, arrID);
-                            }
+                            findID = ds_list_find_index(samusList, arrID);
+                            
+                            if (findID < 0)
+                                ds_list_add(samusList, arrID);
                         }
                     }
                 }
@@ -2714,45 +2651,6 @@ switch (type_event)
                 if (global.bufferOverflow)
                     exit;
                 
-                if (saxmode)
-                {
-                    if (instance_exists(oServer))
-                    {
-                        var findIDSamus = ds_list_find_index(oServer.samusList, ID);
-                        
-                        if (findIDSamus >= 0)
-                            team = 1;
-                        
-                        var findIDSAX = ds_list_find_index(oServer.saxList, ID);
-                        
-                        if (findIDSAX >= 0)
-                            team = 2;
-                        
-                        if (team == 1)
-                        {
-                            team = 2;
-                            ds_list_delete(oServer.samusList, findIDSamus);
-                            ds_list_add(oServer.saxList, ID);
-                            global.newTeam = team;
-                            global.newTeamSocket = socket;
-                            
-                            with (oServer)
-                                event_user(3);
-                        }
-                        else if (team == 2)
-                        {
-                            team = 1;
-                            ds_list_delete(oServer.saxList, findIDSAX);
-                            ds_list_add(oServer.samusList, ID);
-                            global.newTeam = team;
-                            global.newTeamSocket = socket;
-                            
-                            with (oServer)
-                                event_user(3);
-                        }
-                    }
-                }
-                
                 global.saxmode = saxmode;
                 break;
             
@@ -3046,27 +2944,7 @@ switch (type_event)
                 break;
 
             case 71:
-                if (ds_list_size(samusList) > 0 && ds_list_size(deadList) > 0)
-                {
-                    if (ds_list_size(samusList) == ds_list_size(deadList) || ds_list_size(deadList) > ds_list_size(samusList))
-                    {
-                        ds_list_clear(deadList);
-
-                        var savBfr = buffer_create(1024, buffer_grow, 1);
-                        buffer_seek(savBfr, buffer_seek_start, 0);
-                        buffer_write(savBfr, buffer_s32, 2);
-                        buffer_write(savBfr, buffer_u8, 72);
-                        buffer_write(savBfr, buffer_u8, 1);
-                        buffer_poke(savBfr, 0, buffer_s32, buffer_tell(savBfr) - 4);
-                        
-                        for (var i = 0; i < ds_list_size(playerList); i++)
-                            network_send_packet(ds_list_find_value(playerList, i), savBfr, buffer_tell(savBfr));
-                        
-                        buffer_delete(savBfr);
-                        matchEndResetTimer = 120;
-                    }
-                }
-
+                // In co-op mode, players respawn individually at save stations. No match defeat.
                 break;
 
             case 72:
