@@ -11,13 +11,24 @@ Idioma: Português do Brasil (PT-BR)
 
 1. INTRODUÇÃO E OBJETIVO
 --------------------------------------------------------------------------------
-O AM2R Multitroid Co-op é uma modificação profunda projetada para transformar o 
-multijogador do AM2R em uma experiência verdadeiramente cooperativa do início 
-ao fim da campanha.
+O AM2R Multitroid Co-op é uma modificação profunda que eu fiz por que sempre
+quis jogar algum jogo de Metroid com algum amigo, eu não sei muito de
+programação e começei a estudar tem pouco tempo, mas eu mesmo assim quis
+tentar fazer algo que ninguém fez até então: Trazer a experiência AM2R totalmente
+de forma cooperativa.
 
-Diferente do Multitroid original — onde os jogadores apenas viam a Samus um do 
+Peço a compreensão da comunidade ao tentar entender o que fiz aqui. Não pensei
+em lucros, fama ou qualquer tipo de ganho que poderia ter com isso (o que seria
+bem errado), e inclusive estou com muito receio da comunidade de metroid
+me julgar por ter utilizado a ajuda de IA para ler e editar boa parte dos códigos,
+eu só fiz algo que minha criança interior de 10 anos almejava tanto ter um dia:
+Algum co-op de Metroid. Eu espero que as atribuições e todos os créditos
+foram dados devidamente, nunca usei Github nem Reddit como plataforma
+então não sei direito como postar corretamente isso, mas eu estou tentando.
+
+Diferente do Multitroid original onde os jogadores apenas viam a Samus um do 
 outro e compartilhavam o mapa, mas os monstros e salas existiam de forma 
-isolada para cada um —, este mod conecta o mundo de SR388 entre os jogadores 
+isolada para cada um, este mod conecta o mundo de SR388 entre os jogadores 
 em tempo real.
 
 --------------------------------------------------------------------------------
