@@ -209,6 +209,48 @@ if (os_type == os_android)
 }
 
 scr_load_mods();
+
+// Co-op Difficulty Rebalancing: Base values
+global.base_mod_zetahealth = global.mod_zetahealth;
+global.base_mod_omegahealth = global.mod_omegahealth;
+global.base_mod_boss1Health = global.mod_boss1Health;
+global.base_mod_torizohealthform1 = global.mod_torizohealthform1;
+global.base_mod_torizohealthform2 = global.mod_torizohealthform2;
+global.base_mod_torizohealthform1hard = global.mod_torizohealthform1hard;
+global.base_mod_torizohealthform2hard = global.mod_torizohealthform2hard;
+global.base_mod_testerHcannon = global.mod_testerHcannon;
+global.base_mod_testerHeye = global.mod_testerHeye;
+global.base_mod_testerHglass = global.mod_testerHglass;
+global.base_mod_testerHshield = global.mod_testerHshield;
+global.base_mod_tankHbottom = global.mod_tankHbottom;
+global.base_mod_tankHcannon = global.mod_tankHcannon;
+global.base_mod_tankHcore = global.mod_tankHcore;
+global.base_mod_tankHhead = global.mod_tankHhead;
+global.base_mod_tankHshield = global.mod_tankHshield;
+global.base_mod_serrisHealth = global.mod_serrisHealth;
+global.base_mod_serrisHbody = global.mod_serrisHbody;
+global.base_mod_genesisHealth = global.mod_genesisHealth;
+global.base_mod_queenHstart = global.mod_queenHstart;
+global.base_mod_queenHcorridors = global.mod_queenHcorridors;
+global.base_mod_queenHbigroom = global.mod_queenHbigroom;
+global.base_mod_queenHlast = global.mod_queenHlast;
+global.base_mod_queenHprojectile = global.mod_queenHprojectile;
+global.base_mod_coreArachnusHealthBlue = global.mod_coreArachnusHealthBlue;
+global.base_mod_coreArachnusHealthYellow = global.mod_coreArachnusHealthYellow;
+global.base_mod_coreArachnusHealthRed = global.mod_coreArachnusHealthRed;
+global.base_mod_coreTorizoHealthBlue = global.mod_coreTorizoHealthBlue;
+global.base_mod_coreTorizoHealthYellow = global.mod_coreTorizoHealthYellow;
+global.base_mod_coreTorizoHealthRed = global.mod_coreTorizoHealthRed;
+global.base_mod_coreGenesisHealthBlue = global.mod_coreGenesisHealthBlue;
+global.base_mod_coreGenesisHealthYellow = global.mod_coreGenesisHealthYellow;
+global.base_mod_coreGenesisHealthRed = global.mod_coreGenesisHealthRed;
+global.base_mod_coreErisHealthBlue = global.mod_coreErisHealthBlue;
+global.base_mod_coreErisHealthYellow = global.mod_coreErisHealthYellow;
+global.base_mod_coreErisHealthRed = global.mod_coreErisHealthRed;
+global.base_mod_initialized = 1;
+global.coop_enemy_mult = 1.0;
+global.coop_boss_mult = 1.0;
+scr_coop_update_scaling();
 global.percentscreen = 102;
 global.percent1M = 129;
 global.percent1SM = 211;

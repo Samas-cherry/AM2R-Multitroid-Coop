@@ -49,6 +49,7 @@ switch (type_event)
                     if (clientID == arrList[0, 0])
                         ds_list_delete(global.idList, f);
                 }
+                scr_coop_update_scaling();
                 
                 for (var v = 0; v < ds_list_size(posData); v++)
                 {
@@ -346,6 +347,7 @@ switch (type_event)
             
             case 102:
                 ds_list_read(global.idList, strict_decompress(buffer_read(_buffer, buffer_string)));
+                scr_coop_update_scaling();
                 break;
             
             case 104:
