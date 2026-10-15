@@ -43,6 +43,8 @@ if (!noName)
     ds_list_destroy(global.screwList);
     ds_list_destroy(global.hitboxList);
     ds_list_destroy(global.otherPlayerItems);
+    ds_list_destroy(activeEnemyIds);
+    ds_list_destroy(activeEnemyCoords);
 }
 
 global.canConnect = 0;

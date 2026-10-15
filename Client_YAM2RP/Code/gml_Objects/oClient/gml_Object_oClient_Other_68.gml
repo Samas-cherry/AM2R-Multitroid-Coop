@@ -1527,6 +1527,12 @@ switch (type_event)
                     {
                         if (round(xstart) == eXStart && round(ystart) == eYStart)
                         {
+                            var idx = ds_list_find_index(other.activeEnemyIds, id);
+                            if (idx != -1)
+                            {
+                                ds_list_delete(other.activeEnemyIds, idx);
+                                ds_list_delete(other.activeEnemyCoords, idx);
+                            }
                             myhealth = 0;
                             instance_destroy();
                         }
@@ -1595,16 +1601,22 @@ switch (type_event)
                 var eRoom = buffer_read(_buffer, buffer_s16);
                 var deadCount = buffer_read(_buffer, buffer_u16);
                 
-                if (room == eRoom)
+                for (var k = 0; k < deadCount; k++)
                 {
-                    for (var k = 0; k < deadCount; k++)
+                    var dXStart = buffer_read(_buffer, buffer_s16);
+                    var dYStart = buffer_read(_buffer, buffer_s16);
+                    if (room == eRoom)
                     {
-                        var dXStart = buffer_read(_buffer, buffer_s16);
-                        var dYStart = buffer_read(_buffer, buffer_s16);
                         with (oEnemy)
                         {
                             if (round(xstart) == dXStart && round(ystart) == dYStart)
                             {
+                                var idx = ds_list_find_index(other.activeEnemyIds, id);
+                                if (idx != -1)
+                                {
+                                    ds_list_delete(other.activeEnemyIds, idx);
+                                    ds_list_delete(other.activeEnemyCoords, idx);
+                                }
                                 instance_destroy();
                             }
                         }

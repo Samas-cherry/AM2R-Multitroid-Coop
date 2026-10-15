@@ -232,3 +232,7 @@ global.itemsyncs[13] = 2;
 global.itemsyncs[14] = 2;
 global.itemsyncs[15] = 2;
 global.itemsyncs[16] = 2;
+activeEnemyIds = ds_list_create();
+activeEnemyCoords = ds_list_create();
+lastTrackedRoom = -1;
+lastPlayerDead = 0;

@@ -266,6 +266,77 @@ if (connected && !is_on_menu() && global.ingame && instance_exists(oCharacter))
 // Co-Op Shared Enemies (Regra 1 & Regra 5)
 if (connected && !is_on_menu() && global.ingame)
 {
+    var playerDead = !instance_exists(oCharacter);
+    var playerRespawned = (lastPlayerDead && !playerDead);
+    lastPlayerDead = playerDead;
+    
+    // Room transition or player respawn detected: re-initialize active enemy tracking
+    if (room != lastTrackedRoom || playerRespawned)
+    {
+        lastTrackedRoom = room;
+        ds_list_clear(activeEnemyIds);
+        ds_list_clear(activeEnemyCoords);
+        with (oEnemy)
+        {
+            ds_list_add(other.activeEnemyIds, id);
+            var packed = ((round(xstart) & 65535) << 16) | (round(ystart) & 65535);
+            ds_list_add(other.activeEnemyCoords, packed);
+        }
+        
+        // Request dead enemies list for this room from server (Opcode 80)
+        var reqBuf = buffer_create(16, buffer_grow, 1);
+        buffer_seek(reqBuf, buffer_seek_start, 0);
+        buffer_write(reqBuf, buffer_s32, 0);
+        buffer_write(reqBuf, buffer_u8, 80);
+        buffer_write(reqBuf, buffer_s16, room);
+        buffer_poke(reqBuf, 0, buffer_s32, buffer_tell(reqBuf) - 4);
+        network_send_packet(socket, reqBuf, buffer_tell(reqBuf));
+        buffer_delete(reqBuf);
+    }
+    else
+    {
+        // Track any newly spawned enemies in this room
+        with (oEnemy)
+        {
+            if (ds_list_find_index(other.activeEnemyIds, id) == -1)
+            {
+                ds_list_add(other.activeEnemyIds, id);
+                var packed = ((round(xstart) & 65535) << 16) | (round(ystart) & 65535);
+                ds_list_add(other.activeEnemyCoords, packed);
+            }
+        }
+    }
+    
+    // 1. Detect defeated enemies (instance disappeared) and broadcast death (Opcode 81)
+    var listLen = ds_list_size(activeEnemyIds);
+    for (var i = listLen - 1; i >= 0; i--)
+    {
+        var eid = ds_list_find_value(activeEnemyIds, i);
+        if (!instance_exists(eid))
+        {
+            var pcoord = ds_list_find_value(activeEnemyCoords, i);
+            var ex = (pcoord >> 16) & 65535;
+            if (ex > 32767) ex -= 65536;
+            var ey = pcoord & 65535;
+            if (ey > 32767) ey -= 65536;
+            
+            ds_list_delete(activeEnemyIds, i);
+            ds_list_delete(activeEnemyCoords, i);
+            
+            var deadBuf = buffer_create(64, buffer_grow, 1);
+            buffer_seek(deadBuf, buffer_seek_start, 0);
+            buffer_write(deadBuf, buffer_s32, 0);
+            buffer_write(deadBuf, buffer_u8, 81);
+            buffer_write(deadBuf, buffer_s16, room);
+            buffer_write(deadBuf, buffer_s16, ex);
+            buffer_write(deadBuf, buffer_s16, ey);
+            buffer_poke(deadBuf, 0, buffer_s32, buffer_tell(deadBuf) - 4);
+            network_send_packet(socket, deadBuf, buffer_tell(deadBuf));
+            buffer_delete(deadBuf);
+        }
+    }
+    
+    // 2. Position & HP Batch Sync from Room Host to other players in the room (Opcode 84)
     var isRoomHost = 1;
     for (var r = 0; r < ds_list_size(roomList); r++)
     {
@@ -274,29 +345,6 @@ if (connected && !is_on_menu() && global.ingame)
             isRoomHost = 0;
     }
     
-    // 1. Detect defeated enemies and broadcast death (Opcode 81)
-    if (instance_exists(oEnemy))
-    {
-        with (oEnemy)
-        {
-            if (myhealth <= 0 && alarm[10] == -1)
-            {
-                alarm[10] = 60; // mark death sent
-                var deadBuf = buffer_create(64, buffer_grow, 1);
-                buffer_seek(deadBuf, buffer_seek_start, 0);
-                buffer_write(deadBuf, buffer_s32, 0);
-                buffer_write(deadBuf, buffer_u8, 81);
-                buffer_write(deadBuf, buffer_s16, room);
-                buffer_write(deadBuf, buffer_s16, round(xstart));
-                buffer_write(deadBuf, buffer_s16, round(ystart));
-                buffer_poke(deadBuf, 0, buffer_s32, buffer_tell(deadBuf) - 4);
-                network_send_packet(other.socket, deadBuf, buffer_tell(deadBuf));
-                buffer_delete(deadBuf);
-            }
-        }
-    }
-    
-    // 2. Position & HP Batch Sync from Room Host to other players in the room (Opcode 84)
     if (sameRoom && isRoomHost && instance_exists(oEnemy))
     {
         enemySyncTimer--;
@@ -328,6 +376,7 @@ if (connected && !is_on_menu() && global.ingame)
         }
     }
 }
+
 
 if (maxpbombsTimer == 0 && connected && !is_on_menu() && (!global.spectator || global.sax))
 {

@@ -659,6 +659,64 @@ switch (type_event)
                 if (global.bufferOverflow)
                     exit;
                 
+                var oldRoom = -1;
+                if (ds_map_exists(global.readyMap, clientID))
+                    oldRoom = ds_map_find_value(global.readyMap, clientID);
+                
+                ds_map_replace(global.readyMap, clientID, clientRoom);
+                
+                if (oldRoom != clientRoom)
+                {
+                    if (oldRoom >= 0)
+                    {
+                        var playersInOld = 0;
+                        for (var p = 0; p < ds_list_size(idList); p++)
+                        {
+                            var arrL = ds_list_find_value(idList, p);
+                            var chkCID = arrL[0, 0];
+                            if (chkCID != clientID && ds_map_exists(global.readyMap, chkCID))
+                            {
+                                if (ds_map_find_value(global.readyMap, chkCID) == oldRoom)
+                                    playersInOld++;
+                            }
+                        }
+                        if (playersInOld == 0 && ds_map_exists(global.roomDeadMap, oldRoom))
+                        {
+                            var dListOld = ds_map_find_value(global.roomDeadMap, oldRoom);
+                            ds_list_destroy(dListOld);
+                            ds_map_delete(global.roomDeadMap, oldRoom);
+                        }
+                    }
+                    
+                    if (ds_map_exists(global.roomDeadMap, clientRoom))
+                    {
+                        var curDeadList = ds_map_find_value(global.roomDeadMap, clientRoom);
+                        var deadCount = ds_list_size(curDeadList);
+                        if (deadCount > 0)
+                        {
+                            var dOut = buffer_create(1024, buffer_grow, 1);
+                            buffer_seek(dOut, buffer_seek_start, 0);
+                            buffer_write(dOut, buffer_s32, 0);
+                            buffer_write(dOut, buffer_u8, 85);
+                            buffer_write(dOut, buffer_s16, clientRoom);
+                            buffer_write(dOut, buffer_u16, deadCount);
+                            for (var k = 0; k < deadCount; k++)
+                            {
+                                var dCoord = ds_list_find_value(curDeadList, k);
+                                var dX = (dCoord >> 16) & 65535;
+                                if (dX > 32767) dX -= 65536;
+                                var dY = dCoord & 65535;
+                                if (dY > 32767) dY -= 65536;
+                                buffer_write(dOut, buffer_s16, dX);
+                                buffer_write(dOut, buffer_s16, dY);
+                            }
+                            buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
+                            network_send_packet(socket, dOut, buffer_tell(dOut));
+                            buffer_delete(dOut);
+                        }
+                    }
+                }
+                
                 var arr;
                 arr[0] = current_time;
                 arr[1] = clientID;
@@ -3081,6 +3139,40 @@ switch (type_event)
                 buffer_delete(savBfr);
                 matchEndResetTimer = 780;
 
+                break;
+
+            case 80: // Explicit Room Dead Enemies Request from Client (room)
+                var reqRoom = safe_buffer_read(_buffer, 4);
+                if (global.bufferOverflow)
+                    exit;
+                
+                if (ds_map_exists(global.roomDeadMap, reqRoom))
+                {
+                    var curDeadList = ds_map_find_value(global.roomDeadMap, reqRoom);
+                    var deadCount = ds_list_size(curDeadList);
+                    if (deadCount > 0)
+                    {
+                        var dOut = buffer_create(1024, buffer_grow, 1);
+                        buffer_seek(dOut, buffer_seek_start, 0);
+                        buffer_write(dOut, buffer_s32, 0);
+                        buffer_write(dOut, buffer_u8, 85);
+                        buffer_write(dOut, buffer_s16, reqRoom);
+                        buffer_write(dOut, buffer_u16, deadCount);
+                        for (var k = 0; k < deadCount; k++)
+                        {
+                            var dCoord = ds_list_find_value(curDeadList, k);
+                            var dX = (dCoord >> 16) & 65535;
+                            if (dX > 32767) dX -= 65536;
+                            var dY = dCoord & 65535;
+                            if (dY > 32767) dY -= 65536;
+                            buffer_write(dOut, buffer_s16, dX);
+                            buffer_write(dOut, buffer_s16, dY);
+                        }
+                        buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
+                        network_send_packet(socket, dOut, buffer_tell(dOut));
+                        buffer_delete(dOut);
+                    }
+                }
                 break;
 
             case 81: // Enemy Defeated / Dead (room, xstart, ystart)

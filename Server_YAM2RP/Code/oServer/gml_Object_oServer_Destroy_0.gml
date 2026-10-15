@@ -32,3 +32,11 @@ ds_list_destroy(deadList);
 ds_grid_destroy(vars);
 ds_map_destroy(map);
 ds_map_destroy(posMap);
+var rKey = ds_map_find_first(global.roomDeadMap);
+while (!is_undefined(rKey))
+{
+    var rVal = ds_map_find_value(global.roomDeadMap, rKey);
+    ds_list_destroy(rVal);
+    rKey = ds_map_find_next(global.roomDeadMap, rKey);
+}
+ds_map_destroy(global.roomDeadMap);
