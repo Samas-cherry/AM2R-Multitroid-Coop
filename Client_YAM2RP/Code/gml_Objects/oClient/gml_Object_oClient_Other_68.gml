@@ -1812,11 +1812,8 @@ switch (type_event)
                 {
                     with (oItem)
                     {
-                        if (variable_instance_exists(id, "itemid"))
-                        {
-                            if (global.item[itemid] == 1)
-                                instance_destroy();
-                        }
+                        if (global.item[itemid] == 1)
+                            instance_destroy();
                     }
                 }
                 

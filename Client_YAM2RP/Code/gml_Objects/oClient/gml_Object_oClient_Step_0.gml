@@ -229,9 +229,9 @@ if (connected && !is_on_menu() && global.ingame && instance_exists(oCharacter))
 {
     with (oPickup)
     {
-        if (place_meeting(x, y, oCharacter) && !variable_instance_exists(id, "consumed"))
+        if (place_meeting(x, y, oCharacter) && alarm[11] == -1)
         {
-            consumed = 1;
+            alarm[11] = 60;
             var orbBuf = buffer_create(64, buffer_grow, 1);
             buffer_seek(orbBuf, buffer_seek_start, 0);
             buffer_write(orbBuf, buffer_s32, 0);
@@ -246,9 +246,9 @@ if (connected && !is_on_menu() && global.ingame && instance_exists(oCharacter))
     }
     with (oXPickup)
     {
-        if (place_meeting(x, y, oCharacter) && !variable_instance_exists(id, "consumed"))
+        if (place_meeting(x, y, oCharacter) && alarm[11] == -1)
         {
-            consumed = 1;
+            alarm[11] = 60;
             var orbBuf = buffer_create(64, buffer_grow, 1);
             buffer_seek(orbBuf, buffer_seek_start, 0);
             buffer_write(orbBuf, buffer_s32, 0);
