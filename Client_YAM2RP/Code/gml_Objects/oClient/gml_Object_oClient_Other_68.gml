@@ -127,6 +127,7 @@ switch (type_event)
                         if (clientRoom == room || clientRoom == 6 || clientRoom == 10 || clientRoom == 9 || clientRoom == 11 || clientRoom == 16)
                         {
                             ds_list_add(roomList, clientID);
+                            sameRoom = 1;
                             var arr;
                             arr[0] = clientID;
                             arr[1] = clientX;
@@ -210,9 +211,10 @@ switch (type_event)
                         
                         if (clientRoom != room && clientRoom != 6 && clientRoom != 10 && clientRoom != 9 && clientRoom != 11 && clientRoom != 16)
                         {
-                            sameRoom = 0;
                             indexValue = ds_list_find_value(roomList, findsocket);
                             ds_list_delete(roomList, findsocket);
+                            if (ds_list_size(roomList) == 0)
+                                sameRoom = 0;
                             
                             for (var i = 0; i < ds_list_size(roomListData); i++)
                             {
@@ -1559,29 +1561,30 @@ switch (type_event)
                 }
                 break;
             
-            case 84: // Enemy Position Batch sync (applied by non-host)
+            case 83: // Server sets room authority status (room, isHost)
+                var authRoom = buffer_read(_buffer, buffer_s16);
+                var authIsHost = buffer_read(_buffer, buffer_u8);
+                if (room == authRoom)
+                {
+                    isRoomHost = authIsHost;
+                }
+                break;
+
+            case 84: // Enemy Position Batch sync (applied by follower)
                 var eRoom = buffer_read(_buffer, buffer_s16);
                 var eCount = buffer_read(_buffer, buffer_u16);
                 
-                var isHost = 1;
-                for (var r = 0; r < ds_list_size(roomList); r++)
+                for (var k = 0; k < eCount; k++)
                 {
-                    var otherCID = ds_list_find_value(roomList, r);
-                    if (otherCID < global.clientID)
-                        isHost = 0;
-                }
-                
-                if (room == eRoom && !isHost)
-                {
-                    for (var k = 0; k < eCount; k++)
+                    var eXStart = buffer_read(_buffer, buffer_s16);
+                    var eYStart = buffer_read(_buffer, buffer_s16);
+                    var curX = buffer_read(_buffer, buffer_s16);
+                    var curY = buffer_read(_buffer, buffer_s16);
+                    var curScale = buffer_read(_buffer, buffer_s8);
+                    var curHP = buffer_read(_buffer, buffer_s16);
+                    
+                    if (room == eRoom && !isRoomHost)
                     {
-                        var eXStart = buffer_read(_buffer, buffer_s16);
-                        var eYStart = buffer_read(_buffer, buffer_s16);
-                        var curX = buffer_read(_buffer, buffer_s16);
-                        var curY = buffer_read(_buffer, buffer_s16);
-                        var curScale = buffer_read(_buffer, buffer_s8);
-                        var curHP = buffer_read(_buffer, buffer_s16);
-                        
                         with (oEnemy)
                         {
                             if (round(xstart) == eXStart && round(ystart) == eYStart)
@@ -1589,11 +1592,18 @@ switch (type_event)
                                 x = curX;
                                 y = curY;
                                 image_xscale = curScale;
-                                if (curHP < myhealth)
-                                    myhealth = curHP;
+                                myhealth = curHP;
                             }
                         }
                     }
+                }
+                break;
+
+            case 86: // Server requests immediate enemy sync from host
+                var reqRoom = buffer_read(_buffer, buffer_s16);
+                if (room == reqRoom && isRoomHost)
+                {
+                    enemySyncTimer = 0;
                 }
                 break;
             

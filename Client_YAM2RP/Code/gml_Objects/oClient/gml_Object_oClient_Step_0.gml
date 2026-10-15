@@ -274,6 +274,7 @@ if (connected && !is_on_menu() && global.ingame)
     if (room != lastTrackedRoom || playerRespawned)
     {
         lastTrackedRoom = room;
+        isRoomHost = 0;
         ds_list_clear(activeEnemyIds);
         ds_list_clear(activeEnemyCoords);
         with (oEnemy)
@@ -337,22 +338,14 @@ if (connected && !is_on_menu() && global.ingame)
     }
     
     // 2. Position & HP Batch Sync from Room Host to other players in the room (Opcode 84)
-    var isRoomHost = 1;
-    for (var r = 0; r < ds_list_size(roomList); r++)
-    {
-        var otherCID = ds_list_find_value(roomList, r);
-        if (otherCID < global.clientID)
-            isRoomHost = 0;
-    }
-    
-    if (sameRoom && isRoomHost && instance_exists(oEnemy))
+    if (isRoomHost && ds_list_size(roomList) > 0 && instance_exists(oEnemy))
     {
         enemySyncTimer--;
         if (enemySyncTimer <= 0)
         {
-            enemySyncTimer = 8;
+            enemySyncTimer = 5;
             var eCount = instance_number(oEnemy);
-            if (eCount > 0 && eCount <= 40)
+            if (eCount > 0 && eCount <= 60)
             {
                 var posBuf = buffer_create(1024, buffer_grow, 1);
                 buffer_seek(posBuf, buffer_seek_start, 0);

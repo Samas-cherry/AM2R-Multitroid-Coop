@@ -236,3 +236,4 @@ activeEnemyIds = ds_list_create();
 activeEnemyCoords = ds_list_create();
 lastTrackedRoom = -1;
 lastPlayerDead = 0;
+isRoomHost = 1;

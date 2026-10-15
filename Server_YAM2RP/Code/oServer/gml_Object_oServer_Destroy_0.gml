@@ -40,3 +40,4 @@ while (!is_undefined(rKey))
     rKey = ds_map_find_next(global.roomDeadMap, rKey);
 }
 ds_map_destroy(global.roomDeadMap);
+ds_map_destroy(global.roomHostMap);
