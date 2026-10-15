@@ -194,6 +194,75 @@ if (time == 0 && connected && instance_exists(id))
     time = 60;
 }
 
+// Co-Op Shared Important Items (Regra 4)
+if (connected && !is_on_menu() && global.ingame)
+{
+    var itemChanged = 0;
+    for (var it = 0; it < array_length_1d(global.item); it++)
+    {
+        if (global.item[it] != global.itemPrev[it])
+        {
+            if (global.item[it] == 1)
+            {
+                itemChanged = 1;
+                global.itemPrev[it] = 1;
+            }
+        }
+    }
+    
+    if (itemChanged)
+    {
+        var itemSyncBuf = buffer_create(1024, buffer_grow, 1);
+        buffer_seek(itemSyncBuf, buffer_seek_start, 0);
+        buffer_write(itemSyncBuf, buffer_s32, 0);
+        buffer_write(itemSyncBuf, buffer_u8, 50);
+        for (var it = 0; it < array_length_1d(global.item); it++)
+            buffer_write(itemSyncBuf, buffer_u8, global.item[it]);
+        buffer_poke(itemSyncBuf, 0, buffer_s32, buffer_tell(itemSyncBuf) - 4);
+        network_send_packet(socket, itemSyncBuf, buffer_tell(itemSyncBuf));
+        buffer_delete(itemSyncBuf);
+    }
+}
+
+// Co-Op Unique Common Orbs (Regra 3)
+if (connected && !is_on_menu() && global.ingame && instance_exists(oCharacter))
+{
+    with (oPickup)
+    {
+        if (place_meeting(x, y, oCharacter) && !variable_instance_exists(id, "consumed"))
+        {
+            consumed = 1;
+            var orbBuf = buffer_create(64, buffer_grow, 1);
+            buffer_seek(orbBuf, buffer_seek_start, 0);
+            buffer_write(orbBuf, buffer_s32, 0);
+            buffer_write(orbBuf, buffer_u8, 45);
+            buffer_write(orbBuf, buffer_s16, room);
+            buffer_write(orbBuf, buffer_s16, round(x));
+            buffer_write(orbBuf, buffer_s16, round(y));
+            buffer_poke(orbBuf, 0, buffer_s32, buffer_tell(orbBuf) - 4);
+            network_send_packet(other.socket, orbBuf, buffer_tell(orbBuf));
+            buffer_delete(orbBuf);
+        }
+    }
+    with (oXPickup)
+    {
+        if (place_meeting(x, y, oCharacter) && !variable_instance_exists(id, "consumed"))
+        {
+            consumed = 1;
+            var orbBuf = buffer_create(64, buffer_grow, 1);
+            buffer_seek(orbBuf, buffer_seek_start, 0);
+            buffer_write(orbBuf, buffer_s32, 0);
+            buffer_write(orbBuf, buffer_u8, 45);
+            buffer_write(orbBuf, buffer_s16, room);
+            buffer_write(orbBuf, buffer_s16, round(x));
+            buffer_write(orbBuf, buffer_s16, round(y));
+            buffer_poke(orbBuf, 0, buffer_s32, buffer_tell(orbBuf) - 4);
+            network_send_packet(other.socket, orbBuf, buffer_tell(orbBuf));
+            buffer_delete(orbBuf);
+        }
+    }
+}
+
 if (maxpbombsTimer == 0 && connected && !is_on_menu() && (!global.spectator || global.sax))
 {
     if (global.maxpbombsPrev != global.maxpbombs)

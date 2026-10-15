@@ -369,6 +369,20 @@ switch (type_event)
         buffer_poke(bfr, 0, buffer_s32, buffer_tell(bfr) - 4);
         network_send_packet(socket, bfr, buffer_tell(bfr));
         buffer_delete(bfr);
+        
+        // Send current co-op items to the connecting player
+        var initItemBfr = buffer_create(1024, buffer_grow, 1);
+        buffer_seek(initItemBfr, buffer_seek_start, 0);
+        buffer_write(initItemBfr, buffer_s32, 0);
+        buffer_write(initItemBfr, buffer_u8, 50);
+        for (var itm = 0; itm < array_length_1d(global.itemSamus); itm++)
+        {
+            buffer_write(initItemBfr, buffer_u8, global.itemSamus[itm]);
+        }
+        buffer_poke(initItemBfr, 0, buffer_s32, buffer_tell(initItemBfr) - 4);
+        network_send_packet(socket, initItemBfr, buffer_tell(initItemBfr));
+        buffer_delete(initItemBfr);
+        
         alarm[0] = 5;
         alarm[2] = 30;
         alarm[5] = 30;
@@ -2724,6 +2738,33 @@ switch (type_event)
                 
                 break;
             
+            case 45:
+                var pRoom = safe_buffer_read(_buffer, 4);
+                var pX = safe_buffer_read(_buffer, 4);
+                var pY = safe_buffer_read(_buffer, 4);
+                
+                if (global.bufferOverflow)
+                    exit;
+                
+                var orbOut = buffer_create(64, buffer_grow, 1);
+                buffer_seek(orbOut, buffer_seek_start, 0);
+                buffer_write(orbOut, buffer_s32, 0);
+                buffer_write(orbOut, buffer_u8, 45);
+                buffer_write(orbOut, buffer_s16, pRoom);
+                buffer_write(orbOut, buffer_s16, pX);
+                buffer_write(orbOut, buffer_s16, pY);
+                buffer_poke(orbOut, 0, buffer_s32, buffer_tell(orbOut) - 4);
+                
+                var sockets = ds_list_size(playerList);
+                for (var s = 0; s < sockets; s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                        network_send_packet(destSocket, orbOut, buffer_tell(orbOut));
+                }
+                buffer_delete(orbOut);
+                break;
+            
             case 50:
                 if (bufferSize < 350)
                     exit;
@@ -2741,40 +2782,40 @@ switch (type_event)
                         
                         if (arrSocket == ds_list_find_value(playerList, v) && ds_list_find_value(playerList, v) == socket)
                         {
-                            findID = ds_list_find_index(samusList, arrID);
-                            
-                            if (findID >= 0 && team == 1)
+                            for (var i = 0; i < array_length_1d(global.itemSamus); i++)
                             {
-                                for (var i = 0; i < array_length_1d(global.itemSamus); i++)
-                                {
-                                    var receivedItem = safe_buffer_read(_buffer, 1);
-                                    
-                                    if (global.bufferOverflow)
-                                        exit;
-                                    
-                                    if (receivedItem == 1 && global.itemSamus[i] == 0)
-                                        global.itemSamus[i] = receivedItem;
-                                }
-                            }
-                            
-                            findID = ds_list_find_index(saxList, arrID);
-                            
-                            if (findID >= 0 && team == 2)
-                            {
-                                for (var i = 0; i < array_length_1d(global.itemSAX); i++)
-                                {
-                                    var receivedItem = safe_buffer_read(_buffer, 1);
-                                    
-                                    if (global.bufferOverflow)
-                                        exit;
-                                    
-                                    if (receivedItem == 1 && global.itemSAX[i] == 0)
-                                        global.itemSAX[i] = receivedItem;
-                                }
+                                var receivedItem = safe_buffer_read(_buffer, 1);
+                                
+                                if (global.bufferOverflow)
+                                    exit;
+                                
+                                if (receivedItem == 1 && global.itemSamus[i] == 0)
+                                    global.itemSamus[i] = receivedItem;
                             }
                         }
                     }
                 }
+                
+                // Immediately forward updated item array to all other clients
+                var itemOut = buffer_create(1024, buffer_grow, 1);
+                buffer_seek(itemOut, buffer_seek_start, 0);
+                buffer_write(itemOut, buffer_s32, 0);
+                buffer_write(itemOut, buffer_u8, 50);
+                for (var itm = 0; itm < array_length_1d(global.itemSamus); itm++)
+                {
+                    buffer_write(itemOut, buffer_u8, global.itemSamus[itm]);
+                }
+                buffer_poke(itemOut, 0, buffer_s32, buffer_tell(itemOut) - 4);
+                
+                for (var s = 0; s < sockets; s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                    {
+                        network_send_packet(destSocket, itemOut, buffer_tell(itemOut));
+                    }
+                }
+                buffer_delete(itemOut);
                 
                 alarm[2] = 30;
                 break;

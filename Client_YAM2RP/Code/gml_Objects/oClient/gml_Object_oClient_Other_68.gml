@@ -1488,6 +1488,34 @@ switch (type_event)
                 
                 break;
             
+            case 45:
+                var pRoom = buffer_read(_buffer, buffer_s16);
+                var pX = buffer_read(_buffer, buffer_s16);
+                var pY = buffer_read(_buffer, buffer_s16);
+                
+                if (room == pRoom)
+                {
+                    var nearP = instance_nearest(pX, pY, oPickup);
+                    if (nearP != noone)
+                    {
+                        if (point_distance(pX, pY, nearP.x, nearP.y) < 64)
+                        {
+                            with (nearP)
+                                instance_destroy();
+                        }
+                    }
+                    var nearX = instance_nearest(pX, pY, oXPickup);
+                    if (nearX != noone)
+                    {
+                        if (point_distance(pX, pY, nearX.x, nearX.y) < 64)
+                        {
+                            with (nearX)
+                                instance_destroy();
+                        }
+                    }
+                }
+                break;
+            
             case 50:
                 var resend = 0;
                 
@@ -1688,12 +1716,14 @@ switch (type_event)
                         if (instance_exists(oCharacter))
                             oCharacter.fillhp = 1;
 
-                        global.playerhealth += (global.etanks - oldTanks);
+                        global.playerhealth += ((global.etanks - oldTanks) * 100);
                     }
                     else
                     {
                         global.playerhealth = global.maxhealth;
                     }
+                    if (etankCount > oldTanks)
+                        popup_text("Energy Tank +100");
                 }
                 
                 var stankCount = 0;
@@ -1709,6 +1739,7 @@ switch (type_event)
                 
                 if (stankCount != global.stanks)
                 {
+                    var oldSTanks = global.stanks;
                     global.stanks = stankCount;
                     
                     if (global.difficulty < 2)
@@ -1718,6 +1749,8 @@ switch (type_event)
                         global.maxsmissiles = 1 * global.stanks;
                     
                     global.smissiles = global.maxsmissiles;
+                    if (stankCount > oldSTanks)
+                        popup_text("Super Missiles +2");
                 }
                 
                 var ptankCount = 0;
@@ -1733,6 +1766,7 @@ switch (type_event)
                 
                 if (ptankCount != global.ptanks)
                 {
+                    var oldPTanks = global.ptanks;
                     global.ptanks = ptankCount;
                     
                     if (global.difficulty < 2)
@@ -1742,6 +1776,8 @@ switch (type_event)
                         global.maxpbombs = 1 * global.ptanks;
                     
                     global.pbombs = global.maxpbombs;
+                    if (ptankCount > oldPTanks)
+                        popup_text("Power Bombs +2");
                 }
                 
                 var mtankCount = 0;
@@ -1757,6 +1793,7 @@ switch (type_event)
                 
                 if (mtankCount != global.mtanks)
                 {
+                    var oldMTanks = global.mtanks;
                     global.mtanks = mtankCount;
                     
                     if (global.difficulty < 2)
@@ -1766,7 +1803,26 @@ switch (type_event)
                         global.maxmissiles = oControl.mod_Mstartingcount + (2 * global.mtanks);
                     
                     global.missiles = global.maxmissiles;
+                    if (mtankCount > oldMTanks)
+                        popup_text("Missiles +5");
                 }
+                
+                // Co-op: Destroy any collected oItem in the current room
+                if (instance_exists(oItem))
+                {
+                    with (oItem)
+                    {
+                        if (variable_instance_exists(id, "itemid"))
+                        {
+                            if (global.item[itemid] == 1)
+                                instance_destroy();
+                        }
+                    }
+                }
+                
+                // Invalidate map screen surface so map shows item collected
+                if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
+                    surface_free(oSS_Control.s_map);
                 
                 if (resend)
                 {
