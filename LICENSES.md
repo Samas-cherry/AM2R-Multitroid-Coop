@@ -41,7 +41,7 @@ MIT License
 Copyright (c) 2022 milesthenerd
 Copyright (c) 2024 DodoBirby
 Copyright (c) 2024 VanessaMae1087
-Copyright (c) 2026 AM2R Co-op Contributors
+Copyright (c) 2026 Samuka_beludo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

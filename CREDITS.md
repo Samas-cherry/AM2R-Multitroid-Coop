@@ -65,7 +65,7 @@ Metroid II: Return of Samus (1991, Nintendo)
 * **Description:** Added customizable SA-X mode, suit customizations, palette options, and updated netcode stability.
 
 ### **4. AM2R Multitroid Co-op (This Project)**
-* **Authors & Contributors:** Community Co-op Team
+* **Creator & Lead Developer:** Samuka_beludo
 * **Features Introduced:**
   - **Full Room & Enemy Authority Synchronization:** Host dynamic authority, enemy HP, state, position, and death synchronization.
   - **Dynamic Host Transfer:** Smooth room ownership transfer when players enter or leave rooms independently.

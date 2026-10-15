@@ -1,6 +1,6 @@
 # AM2R Multitroid Co-op
 
-A full cooperative multiplayer overhaul for **Another Metroid 2 Remake (AM2R)**.
+A full cooperative multiplayer overhaul for **Another Metroid 2 Remake (AM2R)** created by **Samuka_beludo**.
 
 Built on the foundation of the Multitroid lineage:
 * Unofficial fork of [VanessaMae1087's Multitroid Unofficial-Unofficial](https://github.com/VanessaMae1087/AM2R-Multitroid-Unofficial-Unofficial)
