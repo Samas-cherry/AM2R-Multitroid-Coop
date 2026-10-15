@@ -1663,7 +1663,32 @@ switch (type_event)
                 var reqRoom = buffer_read(_buffer, buffer_s16);
                 if (room == reqRoom && isRoomHost)
                 {
-                    enemySyncTimer = 0;
+                    enemySyncTimer = 5;
+                    var eCount = instance_number(oEnemy);
+                    if (eCount <= 60)
+                    {
+                        var posBuf = buffer_create(1024, buffer_grow, 1);
+                        buffer_seek(posBuf, buffer_seek_start, 0);
+                        buffer_write(posBuf, buffer_s32, 0);
+                        buffer_write(posBuf, buffer_u8, 84);
+                        buffer_write(posBuf, buffer_s16, room);
+                        buffer_write(posBuf, buffer_u16, eCount);
+                        if (eCount > 0)
+                        {
+                            with (oEnemy)
+                            {
+                                buffer_write(posBuf, buffer_s16, round(xstart));
+                                buffer_write(posBuf, buffer_s16, round(ystart));
+                                buffer_write(posBuf, buffer_s16, round(x));
+                                buffer_write(posBuf, buffer_s16, round(y));
+                                buffer_write(posBuf, buffer_s8, facing);
+                                buffer_write(posBuf, buffer_s16, myhealth);
+                            }
+                        }
+                        buffer_poke(posBuf, 0, buffer_s32, buffer_tell(posBuf) - 4);
+                        network_send_packet(socket, posBuf, buffer_tell(posBuf));
+                        buffer_delete(posBuf);
+                    }
                 }
                 break;
             

@@ -700,18 +700,13 @@ switch (type_event)
                 if (ds_map_exists(global.readyMap, clientID))
                     oldRoom = ds_map_find_value(global.readyMap, clientID);
                 
-                if (!ds_map_exists(global.readyMap, clientID))
-                    ds_map_add(global.readyMap, clientID, clientRoom);
-                else
-                    ds_map_replace(global.readyMap, clientID, clientRoom);
-                
                 if (oldRoom != clientRoom)
                 {
                     if (oldRoom >= 0)
                     {
-                        var playersInOld = 0;
-                        var newHostInOld = -1;
-                        var newHostSock = -1;
+                        var playersRemainingInOld = 0;
+                        var candidateNewHostCID = -1;
+                        var candidateNewHostSock = -1;
                         for (var p = 0; p < ds_list_size(idList); p++)
                         {
                             var arrL = ds_list_find_value(idList, p);
@@ -721,17 +716,17 @@ switch (type_event)
                             {
                                 if (ds_map_find_value(global.readyMap, chkCID) == oldRoom)
                                 {
-                                    playersInOld++;
-                                    if (newHostInOld == -1)
+                                    playersRemainingInOld++;
+                                    if (candidateNewHostCID == -1)
                                     {
-                                        newHostInOld = chkCID;
-                                        newHostSock = chkSock;
+                                        candidateNewHostCID = chkCID;
+                                        candidateNewHostSock = chkSock;
                                     }
                                 }
                             }
                         }
                         
-                        if (playersInOld == 0)
+                        if (playersRemainingInOld == 0)
                         {
                             if (ds_map_exists(global.roomDeadMap, oldRoom))
                             {
@@ -748,7 +743,7 @@ switch (type_event)
                             {
                                 if (ds_map_find_value(global.roomHostMap, oldRoom) == clientID)
                                 {
-                                    ds_map_replace(global.roomHostMap, oldRoom, newHostInOld);
+                                    ds_map_replace(global.roomHostMap, oldRoom, candidateNewHostCID);
                                     var hBuf = buffer_create(16, buffer_grow, 1);
                                     buffer_seek(hBuf, buffer_seek_start, 0);
                                     buffer_write(hBuf, buffer_s32, 0);
@@ -756,23 +751,59 @@ switch (type_event)
                                     buffer_write(hBuf, buffer_s16, oldRoom);
                                     buffer_write(hBuf, buffer_u8, 1);
                                     buffer_poke(hBuf, 0, buffer_s32, buffer_tell(hBuf) - 4);
-                                    network_send_packet(newHostSock, hBuf, buffer_tell(hBuf));
+                                    network_send_packet(candidateNewHostSock, hBuf, buffer_tell(hBuf));
                                     buffer_delete(hBuf);
                                 }
                             }
                         }
                     }
                     
+                    if (!ds_map_exists(global.readyMap, clientID))
+                        ds_map_add(global.readyMap, clientID, clientRoom);
+                    else
+                        ds_map_replace(global.readyMap, clientID, clientRoom);
+                    
                     var isHostForNewRoom = 0;
-                    if (!ds_map_exists(global.roomHostMap, clientRoom))
+                    var activeHostCID = -1;
+                    var activeHostSock = -1;
+                    
+                    if (ds_map_exists(global.roomHostMap, clientRoom))
                     {
-                        ds_map_add(global.roomHostMap, clientRoom, clientID);
-                        isHostForNewRoom = 1;
+                        var recHostCID = ds_map_find_value(global.roomHostMap, clientRoom);
+                        if (recHostCID == clientID)
+                        {
+                            isHostForNewRoom = 1;
+                        }
+                        else
+                        {
+                            for (var hp = 0; hp < ds_list_size(idList); hp++)
+                            {
+                                var arrHost = ds_list_find_value(idList, hp);
+                                if (arrHost[0, 0] == recHostCID && ds_map_exists(global.readyMap, recHostCID))
+                                {
+                                    if (ds_map_find_value(global.readyMap, recHostCID) == clientRoom)
+                                    {
+                                        activeHostCID = recHostCID;
+                                        activeHostSock = arrHost[0, 1];
+                                        break;
+                                    }
+                                }
+                            }
+                            if (activeHostCID >= 0)
+                            {
+                                isHostForNewRoom = 0;
+                            }
+                            else
+                            {
+                                ds_map_replace(global.roomHostMap, clientRoom, clientID);
+                                isHostForNewRoom = 1;
+                            }
+                        }
                     }
                     else
                     {
-                        if (ds_map_find_value(global.roomHostMap, clientRoom) == clientID)
-                            isHostForNewRoom = 1;
+                        ds_map_add(global.roomHostMap, clientRoom, clientID);
+                        isHostForNewRoom = 1;
                     }
                     
                     var myHBuf = buffer_create(16, buffer_grow, 1);
@@ -785,26 +816,16 @@ switch (type_event)
                     network_send_packet(socket, myHBuf, buffer_tell(myHBuf));
                     buffer_delete(myHBuf);
                     
-                    if (!isHostForNewRoom)
+                    if (!isHostForNewRoom && activeHostSock >= 0)
                     {
-                        var curHostCID = ds_map_find_value(global.roomHostMap, clientRoom);
-                        for (var hp = 0; hp < ds_list_size(idList); hp++)
-                        {
-                            var arrHost = ds_list_find_value(idList, hp);
-                            if (arrHost[0, 0] == curHostCID)
-                            {
-                                var hSock = arrHost[0, 1];
-                                var reqSyncBuf = buffer_create(16, buffer_grow, 1);
-                                buffer_seek(reqSyncBuf, buffer_seek_start, 0);
-                                buffer_write(reqSyncBuf, buffer_s32, 0);
-                                buffer_write(reqSyncBuf, buffer_u8, 86);
-                                buffer_write(reqSyncBuf, buffer_s16, clientRoom);
-                                buffer_poke(reqSyncBuf, 0, buffer_s32, buffer_tell(reqSyncBuf) - 4);
-                                network_send_packet(hSock, reqSyncBuf, buffer_tell(reqSyncBuf));
-                                buffer_delete(reqSyncBuf);
-                                break;
-                            }
-                        }
+                        var reqSyncBuf = buffer_create(16, buffer_grow, 1);
+                        buffer_seek(reqSyncBuf, buffer_seek_start, 0);
+                        buffer_write(reqSyncBuf, buffer_s32, 0);
+                        buffer_write(reqSyncBuf, buffer_u8, 86);
+                        buffer_write(reqSyncBuf, buffer_s16, clientRoom);
+                        buffer_poke(reqSyncBuf, 0, buffer_s32, buffer_tell(reqSyncBuf) - 4);
+                        network_send_packet(activeHostSock, reqSyncBuf, buffer_tell(reqSyncBuf));
+                        buffer_delete(reqSyncBuf);
                     }
                     
                     if (ds_map_exists(global.roomDeadMap, clientRoom))
@@ -830,6 +851,11 @@ switch (type_event)
                             buffer_delete(dOut);
                         }
                     }
+                }
+                else
+                {
+                    if (!ds_map_exists(global.readyMap, clientID))
+                        ds_map_add(global.readyMap, clientID, clientRoom);
                 }
                 
                 var arr;
@@ -951,11 +977,6 @@ switch (type_event)
                 if (ds_map_exists(global.readyMap, clientID))
                     oldRoom = ds_map_find_value(global.readyMap, clientID);
                 
-                if (!ds_map_exists(global.readyMap, clientID))
-                    ds_map_add(global.readyMap, clientID, clientRoom);
-                else
-                    ds_map_replace(global.readyMap, clientID, clientRoom);
-                
                 if (oldRoom != clientRoom)
                 {
                     if (oldRoom >= 0)
@@ -971,37 +992,28 @@ switch (type_event)
                                     playersInOld++;
                             }
                         }
-                        if (playersInOld == 0 && ds_map_exists(global.roomDeadMap, oldRoom))
+                        if (playersInOld == 0)
                         {
-                            var dListOld = ds_map_find_value(global.roomDeadMap, oldRoom);
-                            ds_list_destroy(dListOld);
-                            ds_map_delete(global.roomDeadMap, oldRoom);
+                            if (ds_map_exists(global.roomDeadMap, oldRoom))
+                            {
+                                var dListOld = ds_map_find_value(global.roomDeadMap, oldRoom);
+                                ds_list_destroy(dListOld);
+                                ds_map_delete(global.roomDeadMap, oldRoom);
+                            }
+                            if (ds_map_exists(global.roomHostMap, oldRoom))
+                                ds_map_delete(global.roomHostMap, oldRoom);
                         }
                     }
                     
-                    if (ds_map_exists(global.roomDeadMap, clientRoom))
-                    {
-                        var curDeadList = ds_map_find_value(global.roomDeadMap, clientRoom);
-                        var deadPairs = ds_list_size(curDeadList);
-                        var deadCount = deadPairs div 2;
-                        if (deadCount > 0)
-                        {
-                            var dOut = buffer_create(1024, buffer_grow, 1);
-                            buffer_seek(dOut, buffer_seek_start, 0);
-                            buffer_write(dOut, buffer_s32, 0);
-                            buffer_write(dOut, buffer_u8, 85);
-                            buffer_write(dOut, buffer_s16, clientRoom);
-                            buffer_write(dOut, buffer_u16, deadCount);
-                            for (var k = 0; k < deadPairs; k += 2)
-                            {
-                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k));
-                                buffer_write(dOut, buffer_s16, ds_list_find_value(curDeadList, k + 1));
-                            }
-                            buffer_poke(dOut, 0, buffer_s32, buffer_tell(dOut) - 4);
-                            network_send_packet(socket, dOut, buffer_tell(dOut));
-                            buffer_delete(dOut);
-                        }
-                    }
+                    if (!ds_map_exists(global.readyMap, clientID))
+                        ds_map_add(global.readyMap, clientID, clientRoom);
+                    else
+                        ds_map_replace(global.readyMap, clientID, clientRoom);
+                }
+                else
+                {
+                    if (!ds_map_exists(global.readyMap, clientID))
+                        ds_map_add(global.readyMap, clientID, clientRoom);
                 }
                 
                 var sockets = ds_list_size(playerList);
@@ -3274,23 +3286,118 @@ switch (type_event)
                 if (clientID < 0)
                     exit;
                 
+                var oldRoom = -1;
+                if (ds_map_exists(global.readyMap, clientID))
+                    oldRoom = ds_map_find_value(global.readyMap, clientID);
+                
+                // If client changed rooms, handle departure from oldRoom
+                if (oldRoom >= 0 && oldRoom != reqRoom)
+                {
+                    var playersRemainingInOld = 0;
+                    var candidateNewHostCID = -1;
+                    var candidateNewHostSock = -1;
+                    for (var p = 0; p < ds_list_size(idList); p++)
+                    {
+                        var arrL = ds_list_find_value(idList, p);
+                        var chkCID = arrL[0, 0];
+                        var chkSock = arrL[0, 1];
+                        if (chkCID != clientID && ds_map_exists(global.readyMap, chkCID))
+                        {
+                            if (ds_map_find_value(global.readyMap, chkCID) == oldRoom)
+                            {
+                                playersRemainingInOld++;
+                                if (candidateNewHostCID == -1)
+                                {
+                                    candidateNewHostCID = chkCID;
+                                    candidateNewHostSock = chkSock;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (playersRemainingInOld == 0)
+                    {
+                        if (ds_map_exists(global.roomDeadMap, oldRoom))
+                        {
+                            var dListOld = ds_map_find_value(global.roomDeadMap, oldRoom);
+                            ds_list_destroy(dListOld);
+                            ds_map_delete(global.roomDeadMap, oldRoom);
+                        }
+                        if (ds_map_exists(global.roomHostMap, oldRoom))
+                            ds_map_delete(global.roomHostMap, oldRoom);
+                    }
+                    else
+                    {
+                        if (ds_map_exists(global.roomHostMap, oldRoom))
+                        {
+                            if (ds_map_find_value(global.roomHostMap, oldRoom) == clientID)
+                            {
+                                ds_map_replace(global.roomHostMap, oldRoom, candidateNewHostCID);
+                                var hBuf = buffer_create(16, buffer_grow, 1);
+                                buffer_seek(hBuf, buffer_seek_start, 0);
+                                buffer_write(hBuf, buffer_s32, 0);
+                                buffer_write(hBuf, buffer_u8, 83);
+                                buffer_write(hBuf, buffer_s16, oldRoom);
+                                buffer_write(hBuf, buffer_u8, 1);
+                                buffer_poke(hBuf, 0, buffer_s32, buffer_tell(hBuf) - 4);
+                                network_send_packet(candidateNewHostSock, hBuf, buffer_tell(hBuf));
+                                buffer_delete(hBuf);
+                            }
+                        }
+                    }
+                }
+                
+                // Update readyMap with new room
                 if (!ds_map_exists(global.readyMap, clientID))
                     ds_map_add(global.readyMap, clientID, reqRoom);
                 else
                     ds_map_replace(global.readyMap, clientID, reqRoom);
                 
+                // Determine authority for reqRoom
                 var isHostForReq = 0;
-                if (!ds_map_exists(global.roomHostMap, reqRoom))
+                var activeHostCID = -1;
+                var activeHostSock = -1;
+                
+                if (ds_map_exists(global.roomHostMap, reqRoom))
+                {
+                    var recHostCID = ds_map_find_value(global.roomHostMap, reqRoom);
+                    if (recHostCID == clientID)
+                    {
+                        isHostForReq = 1;
+                    }
+                    else
+                    {
+                        for (var hp = 0; hp < ds_list_size(idList); hp++)
+                        {
+                            var arrHost = ds_list_find_value(idList, hp);
+                            if (arrHost[0, 0] == recHostCID && ds_map_exists(global.readyMap, recHostCID))
+                            {
+                                if (ds_map_find_value(global.readyMap, recHostCID) == reqRoom)
+                                {
+                                    activeHostCID = recHostCID;
+                                    activeHostSock = arrHost[0, 1];
+                                    break;
+                                }
+                            }
+                        }
+                        if (activeHostCID >= 0)
+                        {
+                            isHostForReq = 0;
+                        }
+                        else
+                        {
+                            ds_map_replace(global.roomHostMap, reqRoom, clientID);
+                            isHostForReq = 1;
+                        }
+                    }
+                }
+                else
                 {
                     ds_map_add(global.roomHostMap, reqRoom, clientID);
                     isHostForReq = 1;
                 }
-                else
-                {
-                    if (ds_map_find_value(global.roomHostMap, reqRoom) == clientID)
-                        isHostForReq = 1;
-                }
                 
+                // Send Opcode 83 to entering client
                 var hAckBuf = buffer_create(16, buffer_grow, 1);
                 buffer_seek(hAckBuf, buffer_seek_start, 0);
                 buffer_write(hAckBuf, buffer_s32, 0);
@@ -3301,28 +3408,20 @@ switch (type_event)
                 network_send_packet(socket, hAckBuf, buffer_tell(hAckBuf));
                 buffer_delete(hAckBuf);
                 
-                if (!isHostForReq)
+                // If follower, request immediate enemy sync from active host
+                if (!isHostForReq && activeHostSock >= 0)
                 {
-                    var curHostCID = ds_map_find_value(global.roomHostMap, reqRoom);
-                    for (var hp = 0; hp < ds_list_size(idList); hp++)
-                    {
-                        var arrHost = ds_list_find_value(idList, hp);
-                        if (arrHost[0, 0] == curHostCID)
-                        {
-                            var hSock = arrHost[0, 1];
-                            var reqSyncBuf = buffer_create(16, buffer_grow, 1);
-                            buffer_seek(reqSyncBuf, buffer_seek_start, 0);
-                            buffer_write(reqSyncBuf, buffer_s32, 0);
-                            buffer_write(reqSyncBuf, buffer_u8, 86);
-                            buffer_write(reqSyncBuf, buffer_s16, reqRoom);
-                            buffer_poke(reqSyncBuf, 0, buffer_s32, buffer_tell(reqSyncBuf) - 4);
-                            network_send_packet(hSock, reqSyncBuf, buffer_tell(reqSyncBuf));
-                            buffer_delete(reqSyncBuf);
-                            break;
-                        }
-                    }
+                    var reqSyncBuf = buffer_create(16, buffer_grow, 1);
+                    buffer_seek(reqSyncBuf, buffer_seek_start, 0);
+                    buffer_write(reqSyncBuf, buffer_s32, 0);
+                    buffer_write(reqSyncBuf, buffer_u8, 86);
+                    buffer_write(reqSyncBuf, buffer_s16, reqRoom);
+                    buffer_poke(reqSyncBuf, 0, buffer_s32, buffer_tell(reqSyncBuf) - 4);
+                    network_send_packet(activeHostSock, reqSyncBuf, buffer_tell(reqSyncBuf));
+                    buffer_delete(reqSyncBuf);
                 }
                 
+                // Send dead enemies list (Opcode 85) to entering client if available
                 if (ds_map_exists(global.roomDeadMap, reqRoom))
                 {
                     var curDeadList = ds_map_find_value(global.roomDeadMap, reqRoom);
