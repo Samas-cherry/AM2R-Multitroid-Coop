@@ -10,31 +10,16 @@ if (object_index != oBoss1Head && coop_scaled == 0)
     }
 }
 
+dmg = other.damage;
+
 if (other.object_index == oMissile || other.object_index == oMissileExpl)
 {
     if (global.icemissiles && !other.smissile)
     {
         if (canfreeze)
-        {
-            if ((other.damage > myhealth && !frozen) || (ceil(other.damage / 2) > myhealth && !frozen))
-            {
-                dmg = 0;
-                myhealth = 1;
-            }
-            else
-            {
-                dmg = other.damage;
-                frozen = 240;
-            }
-        }
-        else
-            dmg = other.damage;
+            frozen = 240;
     }
-    else
-        dmg = other.damage;
 }
-else
-    dmg = other.damage;
 
 if (global.difficulty == 2)
     dmg = ceil(dmg / 2);
