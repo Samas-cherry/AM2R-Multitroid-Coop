@@ -519,7 +519,7 @@ if (!file_exists(working_directory + "/multitroid/dictionary.json"))
 }
 
 global.CONSOLE = 0;
-global.icemissiles = 1;
+global.icemissiles = 0;
 global.sax = 0;
 global.saxmode = 0;
 global.spectator = 0;

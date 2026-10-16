@@ -373,8 +373,7 @@ switch (type_event)
             case 106:
                 load_character_vars();
                 
-                if (!global.sax)
-                    reset_dmap();
+                reset_dmap();
                 
                 global.itemPrev = array_clone(global.item);
                 global.metdeadPrev = array_clone(global.metdead);
@@ -874,6 +873,7 @@ switch (type_event)
                                     if (i == 6)
                                     {
                                         global.spacejump = 1;
+                                        global.icemissiles = 1;
                                         global.spacejumpPrev = global.spacejump;
                                         popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
                                         
@@ -1538,6 +1538,8 @@ switch (type_event)
                                 ds_list_delete(other.activeEnemyX, idx);
                                 ds_list_delete(other.activeEnemyY, idx);
                             }
+                            if (other.isRoomHost)
+                                spawn_rnd_pickup(100);
                             myhealth = 0;
                             instance_destroy();
                         }
@@ -1727,6 +1729,41 @@ switch (type_event)
                 }
                 break;
             
+            case 87: // Spawn Pickup / Virus Sync (received from room authority)
+                var pRoom = buffer_read(_buffer, buffer_s16);
+                var pType = buffer_read(_buffer, buffer_u8);
+                var pX = buffer_read(_buffer, buffer_s16);
+                var pY = buffer_read(_buffer, buffer_s16);
+                
+                if (room == pRoom)
+                {
+                    var pObj = noone;
+                    switch (pType)
+                    {
+                        case 1: pObj = oHPickup; break;
+                        case 2: pObj = oHPickupBig; break;
+                        case 3: pObj = oMPickup; break;
+                        case 4: pObj = oSMPickup; break;
+                        case 5: pObj = oPBPickup; break;
+                        case 6: pObj = oHXPickup; break;
+                        case 7: pObj = oHXPickupBig; break;
+                        case 8: pObj = oMXPickup; break;
+                        case 9: pObj = oSMXPickup; break;
+                        case 10: pObj = oPBXPickup; break;
+                    }
+                    
+                    if (pObj != noone)
+                    {
+                        var spawned = instance_create(pX, pY, pObj);
+                        if (pType >= 6 && pType <= 10)
+                        {
+                            spawned.reform = -1;
+                            spawned.lastEnemy = -1;
+                        }
+                    }
+                }
+                break;
+            
             case 50:
                 var resend = 0;
                 
@@ -1796,6 +1833,7 @@ switch (type_event)
                         if (i == 6)
                         {
                             global.spacejump = 1;
+                            global.icemissiles = 1;
                             global.spacejumpPrev = global.spacejump;
                             popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
                             

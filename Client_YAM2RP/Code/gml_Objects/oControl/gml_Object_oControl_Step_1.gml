@@ -38,10 +38,7 @@ else
     view_visible[1] = false;
 }
 
-if (global.saxmode)
-    global.grayMap = 1;
-else
-    global.grayMap = 0;
+global.grayMap = 0;
 
 if (global.event[308] > 0 && room != rm_credits)
 {

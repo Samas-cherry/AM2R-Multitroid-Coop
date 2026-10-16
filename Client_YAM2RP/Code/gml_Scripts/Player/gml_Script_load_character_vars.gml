@@ -195,6 +195,7 @@ global.spiderball = global.itemsyncs[9] == 1 || (global.sax && global.itemsyncs[
 global.jumpball = global.itemsyncs[10] == 1 || (global.sax && global.itemsyncs[10] == 2);
 global.hijump = global.itemsyncs[14] == 1 || (global.sax && global.itemsyncs[14] == 2);
 global.spacejump = global.itemsyncs[15] == 1 || (global.sax && global.itemsyncs[15] == 2);
+global.icemissiles = (global.spacejump == 1);
 global.speedbooster = global.itemsyncs[16] == 1 || (global.sax && global.itemsyncs[16] == 2);
 global.screwattack = global.itemsyncs[13] == 1 || (global.sax && global.itemsyncs[13] == 2);
 global.cbeam = global.itemsyncs[3] == 1 || (global.sax && global.itemsyncs[3] == 2);

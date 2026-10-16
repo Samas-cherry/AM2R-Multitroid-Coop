@@ -241,3 +241,5 @@ global.itemsyncs[16] = 2;
 lastTrackedRoom = -1;
 lastPlayerDead = 0;
 isRoomHost = 1;
+global.grayMap = 0;
+

@@ -3565,6 +3565,34 @@ switch (type_event)
                 }
                 buffer_delete(fwdPos);
                 break;
+
+            case 87: // Spawn Pickup / Virus Sync (room, drop_type, x, y)
+                var pRoom = safe_buffer_read(_buffer, 4);
+                var pType = safe_buffer_read(_buffer, 1);
+                var pX = safe_buffer_read(_buffer, 4);
+                var pY = safe_buffer_read(_buffer, 4);
+                
+                if (global.bufferOverflow)
+                    exit;
+                
+                var fwdDrop = buffer_create(64, buffer_grow, 1);
+                buffer_seek(fwdDrop, buffer_seek_start, 0);
+                buffer_write(fwdDrop, buffer_s32, 0);
+                buffer_write(fwdDrop, buffer_u8, 87);
+                buffer_write(fwdDrop, buffer_s16, pRoom);
+                buffer_write(fwdDrop, buffer_u8, pType);
+                buffer_write(fwdDrop, buffer_s16, pX);
+                buffer_write(fwdDrop, buffer_s16, pY);
+                buffer_poke(fwdDrop, 0, buffer_s32, buffer_tell(fwdDrop) - 4);
+                
+                for (var s = 0; s < ds_list_size(playerList); s++)
+                {
+                    var destSocket = ds_list_find_value(playerList, s);
+                    if (destSocket != socket)
+                        network_send_packet(destSocket, fwdDrop, buffer_tell(fwdDrop));
+                }
+                buffer_delete(fwdDrop);
+                break;
         }
         
         break;
