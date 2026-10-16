@@ -50,3 +50,7 @@ with (oControl)
     event_user(2);
 dead = 0;
 coop_scaled = 0;
+sync_target_x = x;
+sync_target_y = y;
+sync_target_scale = image_xscale;
+sync_active = 0;

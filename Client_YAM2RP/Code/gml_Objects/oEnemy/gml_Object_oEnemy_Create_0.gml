@@ -43,3 +43,7 @@ if (y > global.waterlevel && global.waterlevel != 0)
 else
     inwater = 0;
 coop_scaled = 0;
+sync_target_x = x;
+sync_target_y = y;
+sync_target_scale = image_xscale;
+sync_active = 0;

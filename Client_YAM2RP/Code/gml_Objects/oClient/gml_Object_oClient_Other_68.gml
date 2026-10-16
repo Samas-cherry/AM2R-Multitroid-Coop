@@ -1609,10 +1609,17 @@ switch (type_event)
                             {
                                 if (round(xstart) == eXStart && round(ystart) == eYStart)
                                 {
-                                    x = curX;
-                                    y = curY;
-                                    image_xscale = curScale;
+                                    sync_target_x = curX;
+                                    sync_target_y = curY;
+                                    sync_target_scale = curScale;
                                     myhealth = curHP;
+                                    
+                                    if (!sync_active || point_distance(x, y, curX, curY) > 48)
+                                    {
+                                        x = curX;
+                                        y = curY;
+                                        sync_active = 1;
+                                    }
                                 }
                             }
                         }
@@ -1681,7 +1688,7 @@ switch (type_event)
                                 buffer_write(posBuf, buffer_s16, round(ystart));
                                 buffer_write(posBuf, buffer_s16, round(x));
                                 buffer_write(posBuf, buffer_s16, round(y));
-                                buffer_write(posBuf, buffer_s8, facing);
+                                buffer_write(posBuf, buffer_s8, round(image_xscale));
                                 buffer_write(posBuf, buffer_s16, myhealth);
                             }
                         }

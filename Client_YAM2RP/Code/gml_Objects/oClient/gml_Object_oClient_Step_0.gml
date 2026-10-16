@@ -302,6 +302,10 @@ if (connected && !is_on_menu() && global.ingame)
         {
             if (ds_list_find_index(other.activeEnemyIds, id) == -1)
             {
+                sync_target_x = x;
+                sync_target_y = y;
+                sync_target_scale = image_xscale;
+                sync_active = 0;
                 ds_list_add(other.activeEnemyIds, id);
                 ds_list_add(other.activeEnemyX, round(xstart));
                 ds_list_add(other.activeEnemyY, round(ystart));
@@ -342,7 +346,7 @@ if (connected && !is_on_menu() && global.ingame)
         enemySyncTimer--;
         if (enemySyncTimer <= 0)
         {
-            enemySyncTimer = 5;
+            enemySyncTimer = 3;
             var eCount = instance_number(oEnemy);
             if (eCount <= 60)
             {
@@ -367,6 +371,40 @@ if (connected && !is_on_menu() && global.ingame)
                 buffer_poke(posBuf, 0, buffer_s32, buffer_tell(posBuf) - 4);
                 network_send_packet(socket, posBuf, buffer_tell(posBuf));
                 buffer_delete(posBuf);
+            }
+        }
+    }
+
+    // 3. Smooth Position Interpolation for Followers
+    if (!isRoomHost && connected && ds_list_size(roomList) > 0)
+    {
+        with (oEnemy)
+        {
+            if (sync_active)
+            {
+                var pDist = point_distance(x, y, sync_target_x, sync_target_y);
+                if (pDist > 48)
+                {
+                    x = sync_target_x;
+                    y = sync_target_y;
+                }
+                else if (pDist > 0.5)
+                {
+                    x = lerp(x, sync_target_x, 0.4);
+                    y = lerp(y, sync_target_y, 0.4);
+                }
+                else
+                {
+                    x = sync_target_x;
+                    y = sync_target_y;
+                }
+                image_xscale = sync_target_scale;
+                
+                hspeed = 0;
+                vspeed = 0;
+                speed = 0;
+                xVel = 0;
+                yVel = 0;
             }
         }
     }

@@ -37,3 +37,11 @@ if (global.coop_enemy_mult > 1.0)
         }
     }
 }
+
+with (oEnemy)
+{
+    sync_target_x = x;
+    sync_target_y = y;
+    sync_target_scale = image_xscale;
+    sync_active = 0;
+}
