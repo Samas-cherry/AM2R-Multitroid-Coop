@@ -1,5 +1,8 @@
 network_set_config(network_config_connect_timeout, 5000);
 strict_init(working_directory + "/multitroid/dictionary.json");
+activeEnemyIds = -1;
+activeEnemyX = -1;
+activeEnemyY = -1;
 kicked = 0;
 kickReason = 255;
 banned = 0;
@@ -185,6 +188,9 @@ global.speedList = ds_list_create();
 global.screwList = ds_list_create();
 global.hitboxList = ds_list_create();
 global.otherPlayerItems = ds_list_create();
+activeEnemyIds = ds_list_create();
+activeEnemyX = ds_list_create();
+activeEnemyY = ds_list_create();
 ds_grid_clear(global.onlineSend, -1);
 ds_grid_clear(global.onlineReceived, -1);
 
@@ -232,9 +238,6 @@ global.itemsyncs[13] = 2;
 global.itemsyncs[14] = 2;
 global.itemsyncs[15] = 2;
 global.itemsyncs[16] = 2;
-activeEnemyIds = ds_list_create();
-activeEnemyX = ds_list_create();
-activeEnemyY = ds_list_create();
 lastTrackedRoom = -1;
 lastPlayerDead = 0;
 isRoomHost = 1;

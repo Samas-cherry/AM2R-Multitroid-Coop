@@ -42,9 +42,21 @@ if (!noName)
     ds_list_destroy(global.speedList);
     ds_list_destroy(global.screwList);
     ds_list_destroy(global.hitboxList);
-    ds_list_destroy(global.otherPlayerItems);
-    ds_list_destroy(activeEnemyIds);
-    ds_list_destroy(activeEnemyCoords);
+    if (variable_instance_exists(id, "activeEnemyIds"))
+    {
+        if (ds_exists(activeEnemyIds, ds_type_list))
+            ds_list_destroy(activeEnemyIds);
+    }
+    if (variable_instance_exists(id, "activeEnemyX"))
+    {
+        if (ds_exists(activeEnemyX, ds_type_list))
+            ds_list_destroy(activeEnemyX);
+    }
+    if (variable_instance_exists(id, "activeEnemyY"))
+    {
+        if (ds_exists(activeEnemyY, ds_type_list))
+            ds_list_destroy(activeEnemyY);
+    }
 }
 
 global.canConnect = 0;
@@ -91,6 +103,3 @@ global.spectatorIndex = -1;
 global.saxmode = 0;
 global.sax = 0;
 global.moderator = 0;
-ds_list_destroy(activeEnemyIds);
-ds_list_destroy(activeEnemyX);
-ds_list_destroy(activeEnemyY);
