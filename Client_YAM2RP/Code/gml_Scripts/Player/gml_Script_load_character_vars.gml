@@ -13,11 +13,13 @@ global.pbeam = 0;
 global.sbeam = 0;
 global.cbeam = 0;
 global.missiles = 30;
-global.missiles = oControl.mod_Mstartingcount;
+if (oControl.mod_Mstartingcount > 0)
+    global.missiles = oControl.mod_Mstartingcount;
 global.smissiles = 0;
 global.pbombs = 0;
 global.maxmissiles = 30;
-global.maxmissiles = oControl.mod_Mstartingcount;
+if (oControl.mod_Mstartingcount > 0)
+    global.maxmissiles = oControl.mod_Mstartingcount;
 global.maxsmissiles = 0;
 global.maxpbombs = 0;
 global.currentweapon = 0;
@@ -160,13 +162,13 @@ global.playerhealth = global.maxhealth;
 
 if (global.difficulty < 2)
 {
-    global.maxmissiles = oControl.mod_Mstartingcount + (global.mtanks * 5);
+    global.maxmissiles = max(30, oControl.mod_Mstartingcount) + (global.mtanks * 5);
     global.maxsmissiles = global.stanks * 2;
     global.maxpbombs = global.ptanks * 2;
 }
 else
 {
-    global.maxmissiles = oControl.mod_Mstartingcount + (global.mtanks * 2);
+    global.maxmissiles = max(30, oControl.mod_Mstartingcount) + (global.mtanks * 2);
     global.maxsmissiles = global.stanks;
     global.maxpbombs = global.ptanks;
 }

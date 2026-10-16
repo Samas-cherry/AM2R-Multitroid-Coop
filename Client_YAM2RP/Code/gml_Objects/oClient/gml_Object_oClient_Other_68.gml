@@ -49,7 +49,7 @@ switch (type_event)
                     if (clientID == arrList[0, 0])
                         ds_list_delete(global.idList, f);
                 }
-                scr_coop_update_scaling();
+                update_variables("coop_scaling");
                 
                 for (var v = 0; v < ds_list_size(posData); v++)
                 {
@@ -347,7 +347,7 @@ switch (type_event)
             
             case 102:
                 ds_list_read(global.idList, strict_decompress(buffer_read(_buffer, buffer_string)));
-                scr_coop_update_scaling();
+                update_variables("coop_scaling");
                 break;
             
             case 104:
@@ -875,7 +875,7 @@ switch (type_event)
                                         global.spacejump = 1;
                                         global.icemissiles = 1;
                                         global.spacejumpPrev = global.spacejump;
-                                        popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
+                                        popup_text("Space Jump & Ice Missiles " + get_text("GlobalOptions", "Enabled"));
                                         
                                         if (sfx_isplaying(4))
                                             sfx_stop(4);
@@ -1835,7 +1835,7 @@ switch (type_event)
                             global.spacejump = 1;
                             global.icemissiles = 1;
                             global.spacejumpPrev = global.spacejump;
-                            popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
+                            popup_text("Space Jump & Ice Missiles " + get_text("GlobalOptions", "Enabled"));
                             
                             if (sfx_isplaying(4))
                                 sfx_stop(4);

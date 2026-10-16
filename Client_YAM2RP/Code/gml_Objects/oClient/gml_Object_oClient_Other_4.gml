@@ -22,7 +22,7 @@ if (room == 20)
     resetTimer = 5;
 
 // Co-Op Difficulty Rebalance (User Decision 3D)
-scr_coop_update_scaling();
+update_variables("coop_scaling");
 
 if (global.coop_enemy_mult > 1.0)
 {
