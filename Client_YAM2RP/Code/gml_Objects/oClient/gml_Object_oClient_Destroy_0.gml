@@ -41,22 +41,12 @@ if (!noName)
     ds_list_destroy(global.hatchlingList);
     ds_list_destroy(global.speedList);
     ds_list_destroy(global.screwList);
-    ds_list_destroy(global.hitboxList);
-    if (variable_instance_exists(id, "activeEnemyIds"))
-    {
-        if (ds_exists(activeEnemyIds, ds_type_list))
-            ds_list_destroy(activeEnemyIds);
-    }
-    if (variable_instance_exists(id, "activeEnemyX"))
-    {
-        if (ds_exists(activeEnemyX, ds_type_list))
-            ds_list_destroy(activeEnemyX);
-    }
-    if (variable_instance_exists(id, "activeEnemyY"))
-    {
-        if (ds_exists(activeEnemyY, ds_type_list))
-            ds_list_destroy(activeEnemyY);
-    }
+    if (activeEnemyIds != -1 && ds_exists(activeEnemyIds, ds_type_list))
+        ds_list_destroy(activeEnemyIds);
+    if (activeEnemyX != -1 && ds_exists(activeEnemyX, ds_type_list))
+        ds_list_destroy(activeEnemyX);
+    if (activeEnemyY != -1 && ds_exists(activeEnemyY, ds_type_list))
+        ds_list_destroy(activeEnemyY);
 }
 
 global.canConnect = 0;
