@@ -1,34 +1,17 @@
 switch (argument0)
 {
     case "initprev":
+        if (!is_array(global.item) || !is_array(global.metdead) || !is_array(global.event))
+        {
+            load_character_vars();
+        }
         if (is_array(global.item))
             global.itemPrev = array_clone(global.item);
-        else
-        {
-            var temp_ip;
-            temp_ip[349] = 0;
-            for (var k = 0; k < 350; k++) temp_ip[k] = 0;
-            global.itemPrev = temp_ip;
-        }
         global.itemstakenPrev = global.itemstaken;
         if (is_array(global.metdead))
             global.metdeadPrev = array_clone(global.metdead);
-        else
-        {
-            var temp_mp;
-            temp_mp[99] = 0;
-            for (var k = 0; k < 100; k++) temp_mp[k] = 0;
-            global.metdeadPrev = temp_mp;
-        }
         if (is_array(global.event))
             global.eventPrev = array_clone(global.event);
-        else
-        {
-            var temp_ep;
-            temp_ep[399] = 0;
-            for (var k = 0; k < 400; k++) temp_ep[k] = 0;
-            global.eventPrev = temp_ep;
-        }
         global.monstersleftPrev = global.monstersleft;
         global.maxmissilesPrev = global.maxmissiles;
         global.maxsmissilesPrev = global.maxsmissiles;

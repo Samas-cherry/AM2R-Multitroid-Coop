@@ -4,6 +4,7 @@ if (!global.acceptPacket)
     exit;
 
 var type_event = ds_map_find_value(async_load, "type");
+writelog("NET START: type_event=" + string(type_event));
 
 switch (type_event)
 {
@@ -20,6 +21,7 @@ switch (type_event)
             exit;
         
         msgid = buffer_read(_buffer, buffer_u8);
+        writelog("NET PACKET: msgid=" + string(msgid));
         
         switch (msgid)
         {
@@ -1871,20 +1873,17 @@ switch (type_event)
                 break;
             
             case 50:
+                writelog("NET 50 START");
                 var resend = 0;
-                if (!is_array(global.item))
+                if (!is_array(global.item) || !is_array(global.itemPrev))
                 {
-                    var temp_it;
-                    temp_it[349] = 0;
-                    for (var k = 0; k < 350; k++) temp_it[k] = 0;
-                    global.item = temp_it;
-                }
-                if (!is_array(global.itemPrev))
-                {
-                    global.itemPrev = array_clone(global.item);
+                    load_character_vars();
+                    update_variables("initprev");
                 }
                 
-                for (var i = 0; i < array_length_1d(global.item); i++)
+                if (is_array(global.item))
+                {
+                    for (var i = 0; i < array_length_1d(global.item); i++)
                 {
                     var receivedItem = buffer_read(_buffer, buffer_u8);
                     
@@ -2187,13 +2186,14 @@ switch (type_event)
                             }
                         }
                     }
+                    }
                 }
                 
                 // Invalidate map screen surface so map shows item collected
                 if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
                     surface_free(oSS_Control.s_map);
                 
-                if (resend)
+                if (resend && is_array(global.item))
                 {
                     var size = 1024;
                     var type = 1;
@@ -2216,42 +2216,41 @@ switch (type_event)
                     network_send_packet(socket, itemBuffer, buffer_tell(itemBuffer));
                     buffer_delete(itemBuffer);
                 }
-                
+                writelog("NET 50 END");
                 break;
             
             case 51:
+                writelog("NET 51 START");
                 var resend = 0;
-                if (!is_array(global.event))
+                if (!is_array(global.event) || !is_array(global.eventPrev))
                 {
-                    var temp_ev;
-                    temp_ev[399] = 0;
-                    for (var k = 0; k < 400; k++) temp_ev[k] = 0;
-                    global.event = temp_ev;
-                }
-                if (!is_array(global.eventPrev))
-                {
-                    global.eventPrev = array_clone(global.event);
+                    load_character_vars();
+                    update_variables("initprev");
                 }
                 
-                for (var i = 0; i < array_length_1d(global.event); i++)
+                if (is_array(global.event))
                 {
-                    if (i < 350)
+                    for (var i = 0; i < array_length_1d(global.event); i++)
                     {
-                        var receivedEvent = buffer_read(_buffer, buffer_u8);
-                        
-                        if (floor(receivedEvent) > floor(global.event[i]) && i != 102)
+                        if (i < 350)
                         {
-                            global.event[i] = receivedEvent;
-                            global.eventPrev[i] = global.event[i];
-                        }
-                        else if (floor(receivedEvent) < floor(global.event[i]) && i != 102)
-                        {
-                            resend = 1;
+                            var receivedEvent = buffer_read(_buffer, buffer_u8);
+                            
+                            if (floor(receivedEvent) > floor(global.event[i]) && i != 102)
+                            {
+                                global.event[i] = receivedEvent;
+                                if (is_array(global.eventPrev))
+                                    global.eventPrev[i] = global.event[i];
+                            }
+                            else if (floor(receivedEvent) < floor(global.event[i]) && i != 102)
+                            {
+                                resend = 1;
+                            }
                         }
                     }
                 }
                 
-                if (resend)
+                if (resend && is_array(global.event))
                 {
                     var size = 1024;
                     var type = 1;
@@ -2274,42 +2273,34 @@ switch (type_event)
                     network_send_packet(socket, eventBuffer, buffer_tell(eventBuffer));
                     buffer_delete(eventBuffer);
                 }
-                
+                writelog("NET 51 END");
                 break;
             
             case 52:
+                writelog("NET 52 START");
                 var resend = 0;
-                if (!is_array(global.metdead))
+                if (!is_array(global.metdead) || !is_array(global.metdeadPrev) || !is_array(global.event))
                 {
-                    var temp_md;
-                    temp_md[99] = 0;
-                    for (var k = 0; k < 100; k++) temp_md[k] = 0;
-                    global.metdead = temp_md;
-                }
-                if (!is_array(global.metdeadPrev))
-                {
-                    global.metdeadPrev = array_clone(global.metdead);
-                }
-                if (!is_array(global.event))
-                {
-                    var temp_ev;
-                    temp_ev[399] = 0;
-                    for (var k = 0; k < 400; k++) temp_ev[k] = 0;
-                    global.event = temp_ev;
+                    load_character_vars();
+                    update_variables("initprev");
                 }
                 
-                for (var i = 0; i < array_length_1d(global.metdead); i++)
+                if (is_array(global.metdead))
                 {
-                    var receivedMetdead = buffer_read(_buffer, buffer_u8);
-                    
-                    if (receivedMetdead == 1 && global.metdead[i] == 0)
+                    for (var i = 0; i < array_length_1d(global.metdead); i++)
                     {
-                        global.metdead[i] = receivedMetdead;
-                        global.metdeadPrev[i] = global.metdead[i];
-                    }
-                    else if (receivedMetdead == 0 && global.metdead[i] == 1)
-                    {
-                        resend = 1;
+                        var receivedMetdead = buffer_read(_buffer, buffer_u8);
+                        
+                        if (receivedMetdead == 1 && global.metdead[i] == 0)
+                        {
+                            global.metdead[i] = receivedMetdead;
+                            if (is_array(global.metdeadPrev))
+                                global.metdeadPrev[i] = global.metdead[i];
+                        }
+                        else if (receivedMetdead == 0 && global.metdead[i] == 1)
+                        {
+                            resend = 1;
+                        }
                     }
                 }
                 
@@ -2417,7 +2408,7 @@ switch (type_event)
                     }
                 }
                 
-                if (resend)
+                if (resend && is_array(global.metdead))
                 {
                     var size = 1024;
                     var type = 1;
@@ -2440,10 +2431,11 @@ switch (type_event)
                     network_send_packet(socket, metdeadBuffer, buffer_tell(metdeadBuffer));
                     buffer_delete(metdeadBuffer);
                 }
-                
+                writelog("NET 52 END");
                 break;
             
             case 53:
+                writelog("NET 53 START");
                 var part = buffer_read(_buffer, buffer_u8);
                 var resend = 0;
                 if (!is_array(global.dmap) || !is_array(global.dmapPrev))
@@ -2451,28 +2443,31 @@ switch (type_event)
                     reset_dmap();
                 }
                 
-                for (var i = 0; i < array_height_2d(global.dmap); i++)
+                if (is_array(global.dmap))
                 {
-                    for (var j = 0; j < array_length_2d(global.dmap, i); j++)
+                    for (var i = 0; i < array_height_2d(global.dmap); i++)
                     {
-                        if ((part == 1 && i < 20) || (part == 2 && i >= 20 && i < 40) || (part == 3 && i >= 40 && i < 60) || (part == 4 && i >= 60 && i < 80))
+                        for (var j = 0; j < array_length_2d(global.dmap, i); j++)
                         {
-                            var receiveddmap = buffer_read(_buffer, buffer_u8);
-                            
-                            if (receiveddmap > global.dmap[i, j])
+                            if ((part == 1 && i < 20) || (part == 2 && i >= 20 && i < 40) || (part == 3 && i >= 40 && i < 60) || (part == 4 && i >= 60 && i < 80))
                             {
-                                global.dmap[i, j] = receiveddmap;
-                                global.dmapPrev[i, j] = global.dmap[i, j];
-                            }
-                            else if (receiveddmap < global.dmap[i, j])
-                            {
-                                resend = 1;
+                                var receiveddmap = buffer_read(_buffer, buffer_u8);
+                                
+                                if (receiveddmap > global.dmap[i, j])
+                                {
+                                    global.dmap[i, j] = receiveddmap;
+                                    global.dmapPrev[i, j] = global.dmap[i, j];
+                                }
+                                else if (receiveddmap < global.dmap[i, j])
+                                {
+                                    resend = 1;
+                                }
                             }
                         }
                     }
                 }
                 
-                if (resend)
+                if (resend && is_array(global.dmap))
                 {
                     var size = 1024;
                     var type = 1;
@@ -2511,25 +2506,25 @@ switch (type_event)
                 if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
                     surface_free(oSS_Control.s_map);
                 
+                writelog("NET 53 END");
                 break;
             
             case 61:
-                var temp_syncs;
-                temp_syncs[16] = 0;
+                writelog("NET 61 START");
                 for (var k = 0; k <= 16; k++)
                 {
-                    temp_syncs[k] = buffer_read(_buffer, buffer_u8);
+                    var val = buffer_read(_buffer, buffer_u8);
+                    if (is_array(global.itemsyncs))
+                        global.itemsyncs[k] = val;
                 }
-                global.itemsyncs = temp_syncs;
-                
-                var temp_minors;
-                temp_minors[7] = 0;
                 for (var k = 0; k <= 7; k++)
                 {
-                    temp_minors[k] = buffer_read(_buffer, buffer_u8);
+                    var val = buffer_read(_buffer, buffer_u8);
+                    if (is_array(global.startingminors))
+                        global.startingminors[k] = val;
                 }
-                global.startingminors = temp_minors;
                 global.awaitsyncs = 0;
+                writelog("NET 61 END");
                 break;
             
             case 62:
