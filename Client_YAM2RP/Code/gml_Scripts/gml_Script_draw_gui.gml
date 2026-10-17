@@ -589,27 +589,7 @@ if (global.classicmode == 0 && global.opshowhud)
     
     if (global.ophudshowmetrcount)
     {
-        var metcount;
-        
-        if (global.saxmode)
-        {
-            metcount = 0;
-            
-            for (var i = 0; i <= 40; i++)
-            {
-                if (global.metdead[i] == 1)
-                    metcount += 1;
-            }
-
-        }
-        
-        if (global.saxmode && (global.MetCount - metcount) > 0)
-        {
-            draw_background(bgGUIMetCountBG3, xoff + 4 + widescreen_space, 4);
-            draw_set_color(#FFBF51);
-            draw_text(xoff + 6 + widescreen_space, 21, to_string_lz(global.MetCount - metcount));
-        }
-        else if (global.ophudshowmetrcount == 1)
+        if (global.ophudshowmetrcount == 1)
         {
             draw_set_color(c_white);
             draw_background(bgGUIMetCountBG1, xoff + 4 + widescreen_space, 4);

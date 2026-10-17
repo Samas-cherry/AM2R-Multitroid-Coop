@@ -3560,6 +3560,9 @@ if (speedmultiplier != 1)
     yVel *= speedmultiplier;
 }
 
+if (state == RUNNING && sprint_steps >= 72 && speedboost == 0 && dash < 30)
+    xVel *= 1.2;
+
 if ((instance_exists(oEventCamera) || instance_exists(oEventCamera2)) && global.enablecontrol == 0)
     xVel = 0;
 
@@ -4598,6 +4601,14 @@ else
 
 if (speedboost_steps > 0 && state != RUNNING)
     speedboost_steps = 0;
+
+if (state == RUNNING && (kLeft > 0 || kRight > 0) && turning == 0)
+    sprint_steps += 1;
+else
+    sprint_steps = 0;
+
+if (sprint_steps > 0 && state != RUNNING)
+    sprint_steps = 0;
 
 if (canrecover > 0)
     canrecover -= 1;

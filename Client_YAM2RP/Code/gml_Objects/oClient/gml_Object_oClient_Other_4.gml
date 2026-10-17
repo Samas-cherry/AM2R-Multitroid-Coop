@@ -21,6 +21,9 @@ if (room == 4)
 if (room == 20)
     resetTimer = 5;
 
+global.objdeactivate = 0;
+instance_activate_all();
+
 // Co-Op Difficulty Rebalance (User Decision 3D)
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;

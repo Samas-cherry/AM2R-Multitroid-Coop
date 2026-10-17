@@ -1581,75 +1581,30 @@ switch (type_event)
                 
                 if (room == eRoom && !isRoomHost)
                 {
-                    if (eCount == 0)
+                    for (var k = 0; k < eCount; k++)
                     {
-                        with (oEnemy)
-                        {
-                            instance_destroy();
-                        }
-                        ds_list_clear(activeEnemyIds);
-                        ds_list_clear(activeEnemyX);
-                        ds_list_clear(activeEnemyY);
-                    }
-                    else
-                    {
-                        var aliveXS;
-                        var aliveYS;
-                        for (var k = 0; k < eCount; k++)
-                        {
-                            var eXStart = buffer_read(_buffer, buffer_s16);
-                            var eYStart = buffer_read(_buffer, buffer_s16);
-                            var curX = buffer_read(_buffer, buffer_s16);
-                            var curY = buffer_read(_buffer, buffer_s16);
-                            var curScale = buffer_read(_buffer, buffer_s8);
-                            var curHP = buffer_read(_buffer, buffer_s16);
-                            
-                            aliveXS[k] = eXStart;
-                            aliveYS[k] = eYStart;
-                            
-                            with (oEnemy)
-                            {
-                                if (round(xstart) == eXStart && round(ystart) == eYStart)
-                                {
-                                    sync_target_x = curX;
-                                    sync_target_y = curY;
-                                    sync_target_scale = curScale;
-                                    myhealth = curHP;
-                                    
-                                    if (!sync_active || point_distance(x, y, curX, curY) > 48)
-                                    {
-                                        x = curX;
-                                        y = curY;
-                                        sync_active = 1;
-                                    }
-                                }
-                            }
-                        }
+                        var eXStart = buffer_read(_buffer, buffer_s16);
+                        var eYStart = buffer_read(_buffer, buffer_s16);
+                        var curX = buffer_read(_buffer, buffer_s16);
+                        var curY = buffer_read(_buffer, buffer_s16);
+                        var curScale = buffer_read(_buffer, buffer_s8);
+                        var curHP = buffer_read(_buffer, buffer_s16);
                         
-                        // Prune any enemy on follower that is no longer alive on the host
                         with (oEnemy)
                         {
-                            var foundInHost = 0;
-                            var myXS = round(xstart);
-                            var myYS = round(ystart);
-                            for (var m = 0; m < eCount; m++)
+                            if (round(xstart) == eXStart && round(ystart) == eYStart)
                             {
-                                if (aliveXS[m] == myXS && aliveYS[m] == myYS)
+                                sync_target_x = curX;
+                                sync_target_y = curY;
+                                sync_target_scale = curScale;
+                                myhealth = curHP;
+                                
+                                if (!sync_active || point_distance(x, y, curX, curY) > 48)
                                 {
-                                    foundInHost = 1;
-                                    break;
+                                    x = curX;
+                                    y = curY;
+                                    sync_active = 1;
                                 }
-                            }
-                            if (!foundInHost)
-                            {
-                                var idx = ds_list_find_index(other.activeEnemyIds, id);
-                                if (idx != -1)
-                                {
-                                    ds_list_delete(other.activeEnemyIds, idx);
-                                    ds_list_delete(other.activeEnemyX, idx);
-                                    ds_list_delete(other.activeEnemyY, idx);
-                                }
-                                instance_destroy();
                             }
                         }
                     }

@@ -34,7 +34,7 @@ if (global.event[303] > 0)
 if (global.event[172] != 3)
     global.event[172] = 3;
 
-if (global.gamemode > 1 || global.saxmode)
+if (global.gamemode > 1 && !global.saxmode)
 {
     if (global.gamemode == 1)
         global.gamemode = 2;
