@@ -1,20 +1,38 @@
 network_set_config(network_config_connect_timeout, 5000);
 strict_init(working_directory + "/multitroid/dictionary.json");
+if (!is_array(global.startingminors))
+{
+    var temp_sm;
+    temp_sm[7] = 0;
+    for (var k = 0; k <= 7; k++) temp_sm[k] = 0;
+    global.startingminors = temp_sm;
+}
+if (!is_array(global.itemsyncs))
+{
+    var temp_is;
+    temp_is[16] = 2;
+    temp_is[0] = 1;
+    temp_is[1] = 2;
+    temp_is[2] = 0;
+    temp_is[3] = 2;
+    temp_is[4] = 0;
+    temp_is[5] = 2;
+    temp_is[6] = 2;
+    temp_is[7] = 2;
+    temp_is[8] = 1;
+    temp_is[9] = 2;
+    temp_is[10] = 2;
+    temp_is[11] = 2;
+    temp_is[12] = 1;
+    temp_is[13] = 2;
+    temp_is[14] = 2;
+    temp_is[15] = 2;
+    temp_is[16] = 2;
+    global.itemsyncs = temp_is;
+}
 if (!is_array(global.item) || !is_array(global.event) || !is_array(global.metdead) || !is_array(global.dmap))
 {
     load_character_vars();
-}
-if (!is_array(global.startingminors))
-{
-    global.startingminors = 0;
-    global.startingminors[0] = 0;
-    global.startingminors[1] = 0;
-    global.startingminors[2] = 0;
-    global.startingminors[3] = 0;
-    global.startingminors[4] = 0;
-    global.startingminors[5] = 0;
-    global.startingminors[6] = 0;
-    global.startingminors[7] = 0;
 }
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
@@ -239,24 +257,26 @@ beginReceiveTimer = 300;
 global.samsAlive = 0;
 global.samsAlpha = 0;
 canScrew = 0;
-global.itemsyncs = 0;
-global.itemsyncs[0] = 1;
-global.itemsyncs[1] = 2;
-global.itemsyncs[2] = 0;
-global.itemsyncs[3] = 2;
-global.itemsyncs[4] = 0;
-global.itemsyncs[5] = 2;
-global.itemsyncs[6] = 2;
-global.itemsyncs[7] = 2;
-global.itemsyncs[8] = 1;
-global.itemsyncs[9] = 2;
-global.itemsyncs[10] = 2;
-global.itemsyncs[11] = 2;
-global.itemsyncs[12] = 1;
-global.itemsyncs[13] = 2;
-global.itemsyncs[14] = 2;
-global.itemsyncs[15] = 2;
-global.itemsyncs[16] = 2;
+var temp_is;
+temp_is[16] = 2;
+temp_is[0] = 1;
+temp_is[1] = 2;
+temp_is[2] = 0;
+temp_is[3] = 2;
+temp_is[4] = 0;
+temp_is[5] = 2;
+temp_is[6] = 2;
+temp_is[7] = 2;
+temp_is[8] = 1;
+temp_is[9] = 2;
+temp_is[10] = 2;
+temp_is[11] = 2;
+temp_is[12] = 1;
+temp_is[13] = 2;
+temp_is[14] = 2;
+temp_is[15] = 2;
+temp_is[16] = 2;
+global.itemsyncs = temp_is;
 lastTrackedRoom = -1;
 lastPlayerDead = 0;
 isRoomHost = 1;

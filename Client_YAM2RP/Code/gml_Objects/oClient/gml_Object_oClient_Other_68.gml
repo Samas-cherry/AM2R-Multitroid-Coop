@@ -1872,10 +1872,16 @@ switch (type_event)
             
             case 50:
                 var resend = 0;
-                if (!is_array(global.item) || !is_array(global.itemPrev))
+                if (!is_array(global.item))
                 {
-                    load_character_vars();
-                    update_variables("initprev");
+                    var temp_it;
+                    temp_it[349] = 0;
+                    for (var k = 0; k < 350; k++) temp_it[k] = 0;
+                    global.item = temp_it;
+                }
+                if (!is_array(global.itemPrev))
+                {
+                    global.itemPrev = array_clone(global.item);
                 }
                 
                 for (var i = 0; i < array_length_1d(global.item); i++)
@@ -2215,10 +2221,16 @@ switch (type_event)
             
             case 51:
                 var resend = 0;
-                if (!is_array(global.event) || !is_array(global.eventPrev))
+                if (!is_array(global.event))
                 {
-                    load_character_vars();
-                    update_variables("initprev");
+                    var temp_ev;
+                    temp_ev[399] = 0;
+                    for (var k = 0; k < 400; k++) temp_ev[k] = 0;
+                    global.event = temp_ev;
+                }
+                if (!is_array(global.eventPrev))
+                {
+                    global.eventPrev = array_clone(global.event);
                 }
                 
                 for (var i = 0; i < array_length_1d(global.event); i++)
@@ -2267,10 +2279,23 @@ switch (type_event)
             
             case 52:
                 var resend = 0;
-                if (!is_array(global.metdead) || !is_array(global.metdeadPrev))
+                if (!is_array(global.metdead))
                 {
-                    load_character_vars();
-                    update_variables("initprev");
+                    var temp_md;
+                    temp_md[99] = 0;
+                    for (var k = 0; k < 100; k++) temp_md[k] = 0;
+                    global.metdead = temp_md;
+                }
+                if (!is_array(global.metdeadPrev))
+                {
+                    global.metdeadPrev = array_clone(global.metdead);
+                }
+                if (!is_array(global.event))
+                {
+                    var temp_ev;
+                    temp_ev[399] = 0;
+                    for (var k = 0; k < 400; k++) temp_ev[k] = 0;
+                    global.event = temp_ev;
                 }
                 
                 for (var i = 0; i < array_length_1d(global.metdead); i++)
@@ -2337,7 +2362,7 @@ switch (type_event)
                     
                     if (global.lavastate < 11)
                     {
-                        if (global.event[303] == 0)
+                        if (is_array(global.event) && global.event[303] == 0)
                             countLeft++;
                         
                         if (global.monstersleft != countLeft)
@@ -2362,10 +2387,10 @@ switch (type_event)
                             if (global.metdead[i] == 0 && i != 11 && i != 23 && i != 24 && i != 41 && i != 42 && i != 43 && i != 44 && i != 45)
                                 countArea++;
                             
-                            if (global.metdead[i] == 0 && global.event[109] == 1 && i == 11)
+                            if (global.metdead[i] == 0 && is_array(global.event) && global.event[109] == 1 && i == 11)
                                 countArea++;
                             
-                            if (global.metdead[i] == 0 && global.event[171] == 1 && (i == 23 || i == 24))
+                            if (global.metdead[i] == 0 && is_array(global.event) && global.event[171] == 1 && (i == 23 || i == 24))
                                 countArea++;
                             
                             if (global.lavastate >= 8 && global.metdead[i] == 0 && i == 41)
@@ -2381,7 +2406,7 @@ switch (type_event)
                     
                     if (global.lavastate < 11)
                     {
-                        if (global.event[303] == 0)
+                        if (is_array(global.event) && global.event[303] == 0)
                             countLeft++;
                         
                         if (global.monstersleft != countLeft)
@@ -2423,8 +2448,7 @@ switch (type_event)
                 var resend = 0;
                 if (!is_array(global.dmap) || !is_array(global.dmapPrev))
                 {
-                    load_character_vars();
-                    update_variables("initprev");
+                    reset_dmap();
                 }
                 
                 for (var i = 0; i < array_height_2d(global.dmap); i++)
@@ -2490,41 +2514,21 @@ switch (type_event)
                 break;
             
             case 61:
-                if (!is_array(global.itemsyncs))
+                var temp_syncs;
+                temp_syncs[16] = 0;
+                for (var k = 0; k <= 16; k++)
                 {
-                    global.itemsyncs = 0;
-                    for (var k = 0; k <= 16; k++) global.itemsyncs[k] = 0;
+                    temp_syncs[k] = buffer_read(_buffer, buffer_u8);
                 }
-                if (!is_array(global.startingminors))
+                global.itemsyncs = temp_syncs;
+                
+                var temp_minors;
+                temp_minors[7] = 0;
+                for (var k = 0; k <= 7; k++)
                 {
-                    global.startingminors = 0;
-                    for (var k = 0; k <= 7; k++) global.startingminors[k] = 0;
+                    temp_minors[k] = buffer_read(_buffer, buffer_u8);
                 }
-                global.itemsyncs[0] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[1] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[2] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[3] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[4] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[5] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[6] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[7] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[8] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[9] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[10] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[11] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[12] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[13] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[14] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[15] = buffer_read(_buffer, buffer_u8);
-                global.itemsyncs[16] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[0] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[1] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[2] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[3] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[4] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[5] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[6] = buffer_read(_buffer, buffer_u8);
-                global.startingminors[7] = buffer_read(_buffer, buffer_u8);
+                global.startingminors = temp_minors;
                 global.awaitsyncs = 0;
                 break;
             

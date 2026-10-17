@@ -25,14 +25,17 @@ if (!connected)
     }
 }
 
-if (global.event[103] > 0)
-    global.event[103] = floor(global.event[103]);
+if (is_array(global.event))
+{
+    if (global.event[103] > 0)
+        global.event[103] = floor(global.event[103]);
 
-if (global.event[303] > 0)
-    phase = 0;
+    if (global.event[303] > 0)
+        phase = 0;
 
-if (global.event[172] != 3)
-    global.event[172] = 3;
+    if (global.event[172] != 3)
+        global.event[172] = 3;
+}
 
 if (global.gamemode > 1 && !global.saxmode)
 {
@@ -49,24 +52,27 @@ if (room == rm_death)
     queenHealth = global.mod_queenHstart + (global.mtanks * 10);
 }
 
-if ((room == rm_a4b02 || room == rm_a4b03 || room == rm_a4b04 || room == rm_a4b05 || room == rm_a4b06 || room == rm_a4b07 || room == rm_a4b08 || room == rm_a4b09 || room == rm_a4b10 || room == rm_a4b11 || room == rm_a4b12 || room == rm_a4b13 || room == rm_a4b14 || room == rm_a4b15 || room == rm_a4b16 || room == rm_a4b17 || room == rm_a4b18 || room == rm_a4b19) && global.event[203] > 0 && global.event[203] < 9 && !instance_exists(oA4EscapeControl))
-    instance_create(x, y, oA4EscapeControl);
-
-if (room == rm_a4b01 && global.event[203] == 9 && instance_exists(oA4EscapeControl))
+if (is_array(global.event))
 {
-    with (oA4EscapeControl)
-        event_user(0);
-}
+    if ((room == rm_a4b02 || room == rm_a4b03 || room == rm_a4b04 || room == rm_a4b05 || room == rm_a4b06 || room == rm_a4b07 || room == rm_a4b08 || room == rm_a4b09 || room == rm_a4b10 || room == rm_a4b11 || room == rm_a4b12 || room == rm_a4b13 || room == rm_a4b14 || room == rm_a4b15 || room == rm_a4b16 || room == rm_a4b17 || room == rm_a4b18 || room == rm_a4b19) && global.event[203] > 0 && global.event[203] < 9 && !instance_exists(oA4EscapeControl))
+        instance_create(x, y, oA4EscapeControl);
 
-if (global.event[203] == 9 && sfx_isplaying(296))
-    sfx_stop(296);
-
-if (!instance_exists(oQueen) && global.event[303] == 0)
-{
-    if (!queenHealthResetQueued)
+    if (room == rm_a4b01 && global.event[203] == 9 && instance_exists(oA4EscapeControl))
     {
-        queenHealthResetQueued = 1;
-        alarm[1] = 5;
+        with (oA4EscapeControl)
+            event_user(0);
+    }
+
+    if (global.event[203] == 9 && sfx_isplaying(296))
+        sfx_stop(296);
+
+    if (!instance_exists(oQueen) && global.event[303] == 0)
+    {
+        if (!queenHealthResetQueued)
+        {
+            queenHealthResetQueued = 1;
+            alarm[1] = 5;
+        }
     }
 }
 
