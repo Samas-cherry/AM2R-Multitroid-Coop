@@ -84,7 +84,11 @@ if (argument3 == 0)
     }
 }
 
-if (global.coop_boss_damage_mult < 1.0)
+var bossDamageMult = 1.0;
+if (variable_global_exists("coop_boss_damage_mult"))
+    bossDamageMult = global.coop_boss_damage_mult;
+
+if (bossDamageMult < 1.0)
 {
     var isBossAttacker = 0;
     if (instance_exists(other))
@@ -94,7 +98,7 @@ if (global.coop_boss_damage_mult < 1.0)
             isBossAttacker = 1;
     }
     if (isBossAttacker)
-        damage_taken = ceil(damage_taken * global.coop_boss_damage_mult);
+        damage_taken = ceil(damage_taken * bossDamageMult);
 }
 
 if (global.playerhealth > 0)

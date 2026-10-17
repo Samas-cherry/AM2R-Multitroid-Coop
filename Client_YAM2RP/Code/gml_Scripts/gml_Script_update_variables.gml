@@ -11,7 +11,11 @@ switch (argument0)
         global.coop_enemy_mult = 1.0 + (num_players - 1) * 0.20;
         global.coop_boss_mult = 1.0 + (num_players - 1) * 0.40;
 
-        if (global.saxmode && num_players > 1)
+        var is_sax = 0;
+        if (variable_global_exists("saxmode"))
+            is_sax = global.saxmode;
+
+        if (is_sax && num_players > 1)
             global.coop_boss_damage_mult = max(0.35, 1.0 - (num_players - 1) * 0.13);
         else
             global.coop_boss_damage_mult = 1.0;

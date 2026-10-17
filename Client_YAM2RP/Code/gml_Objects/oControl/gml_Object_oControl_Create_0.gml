@@ -248,6 +248,7 @@ global.base_mod_coreErisHealthBlue = global.mod_coreErisHealthBlue;
 global.base_mod_coreErisHealthYellow = global.mod_coreErisHealthYellow;
 global.base_mod_coreErisHealthRed = global.mod_coreErisHealthRed;
 global.base_mod_initialized = 1;
+global.saxmode = 0;
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
 global.coop_boss_damage_mult = 1.0;
