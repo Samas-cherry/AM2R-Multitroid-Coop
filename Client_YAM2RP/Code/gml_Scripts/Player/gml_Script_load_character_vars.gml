@@ -1,3 +1,4 @@
+writelog("load_character_vars: start");
 global.morphball = 1;
 global.jumpball = 0;
 global.powergrip = 1;
@@ -73,9 +74,34 @@ global.item[1] = 1;
 reset_logs_list();
 reset_hints();
 reset_dmap();
+if (!is_array(global.startingminors))
+{
+    var temp_sm_init;
+    temp_sm_init[7] = 0;
+    for (var _smi = 0; _smi < 8; _smi++)
+        temp_sm_init[_smi] = 0;
+    global.startingminors = temp_sm_init;
+}
+if (!is_array(global.itemsyncs))
+{
+    var temp_is_init;
+    temp_is_init[16] = 2;
+    for (var _isi = 0; _isi <= 16; _isi++)
+        temp_is_init[_isi] = 2;
+    temp_is_init[0] = 1;
+    temp_is_init[2] = 0;
+    temp_is_init[4] = 0;
+    temp_is_init[8] = 1;
+    temp_is_init[12] = 1;
+    global.itemsyncs = temp_is_init;
+}
+var current_sax = 0;
+if (variable_global_exists("sax"))
+    current_sax = global.sax;
+
 var times = 0;
 
-if (is_array(global.startingminors) && variable_global_exists("sax") && global.startingminors[global.sax] > 0)
+if (is_array(global.startingminors) && global.startingminors[current_sax] > 0)
 {
     for (i = 0; i < array_length_1d(global.item); i++)
     {
@@ -84,7 +110,7 @@ if (is_array(global.startingminors) && variable_global_exists("sax") && global.s
             global.item[i] = 1;
             times++;
             
-            if (times >= global.startingminors[global.sax])
+            if (times >= global.startingminors[current_sax])
                 break;
         }
     }
@@ -92,9 +118,9 @@ if (is_array(global.startingminors) && variable_global_exists("sax") && global.s
     times = 0;
 }
 
-if (is_array(global.startingminors) && variable_global_exists("sax") && global.startingminors[4 + global.sax] > 0)
+if (is_array(global.startingminors) && global.startingminors[4 + current_sax] > 0)
 {
-    if (global.startingminors[4 + global.sax] == 10)
+    if (global.startingminors[4 + current_sax] == 10)
     {
         times++;
         global.item[206] = 1;
@@ -107,7 +133,7 @@ if (is_array(global.startingminors) && variable_global_exists("sax") && global.s
             global.item[i] = 1;
             times++;
             
-            if (times >= global.startingminors[4 + global.sax])
+            if (times >= global.startingminors[4 + current_sax])
                 break;
         }
     }
@@ -115,9 +141,9 @@ if (is_array(global.startingminors) && variable_global_exists("sax") && global.s
     times = 0;
 }
 
-if (global.startingminors[6 + global.sax] > 0)
+if (is_array(global.startingminors) && global.startingminors[6 + current_sax] > 0)
 {
-    if (global.startingminors[6 + global.sax] == 10)
+    if (global.startingminors[6 + current_sax] == 10)
     {
         times++;
         global.item[253] = 1;
@@ -130,7 +156,7 @@ if (global.startingminors[6 + global.sax] > 0)
             global.item[i] = 1;
             times++;
             
-            if (times >= global.startingminors[6 + global.sax])
+            if (times >= global.startingminors[6 + current_sax])
                 break;
         }
     }
@@ -138,7 +164,7 @@ if (global.startingminors[6 + global.sax] > 0)
     times = 0;
 }
 
-if (global.startingminors[2 + global.sax])
+if (is_array(global.startingminors) && global.startingminors[2 + current_sax] > 0)
 {
     for (i = 0; i < array_length_1d(global.item); i++)
     {
@@ -147,16 +173,26 @@ if (global.startingminors[2 + global.sax])
             global.item[i] = 1;
             times++;
             
-            if (times >= global.startingminors[2 + global.sax])
+            if (times >= global.startingminors[2 + current_sax])
                 break;
         }
     }
 }
 
-global.etanks = global.startingminors[global.sax];
-global.mtanks = global.startingminors[2 + global.sax];
-global.stanks = global.startingminors[4 + global.sax];
-global.ptanks = global.startingminors[6 + global.sax];
+if (is_array(global.startingminors))
+{
+    global.etanks = global.startingminors[current_sax];
+    global.mtanks = global.startingminors[2 + current_sax];
+    global.stanks = global.startingminors[4 + current_sax];
+    global.ptanks = global.startingminors[6 + current_sax];
+}
+else
+{
+    global.etanks = 0;
+    global.mtanks = 0;
+    global.stanks = 0;
+    global.ptanks = 0;
+}
 global.maxhealth = 99 + (global.etanks * 100 * oControl.mod_etankhealthmult);
 global.playerhealth = global.maxhealth;
 
@@ -218,3 +254,4 @@ else
     global.currentsuit = 0;
 
 global.itemPrev = array_clone(global.item);
+writelog("load_character_vars: end");

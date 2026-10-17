@@ -2511,18 +2511,22 @@ switch (type_event)
             
             case 61:
                 writelog("NET 61 START");
+                var temp_is;
+                temp_is[16] = 2;
                 for (var k = 0; k <= 16; k++)
                 {
                     var val = buffer_read(_buffer, buffer_u8);
-                    if (is_array(global.itemsyncs))
-                        global.itemsyncs[k] = val;
+                    temp_is[k] = val;
                 }
+                global.itemsyncs = temp_is;
+                var temp_sm;
+                temp_sm[7] = 0;
                 for (var k = 0; k <= 7; k++)
                 {
                     var val = buffer_read(_buffer, buffer_u8);
-                    if (is_array(global.startingminors))
-                        global.startingminors[k] = val;
+                    temp_sm[k] = val;
                 }
+                global.startingminors = temp_sm;
                 global.awaitsyncs = 0;
                 writelog("NET 61 END");
                 break;
