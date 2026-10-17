@@ -11,11 +11,16 @@ switch (argument0)
         global.coop_enemy_mult = 1.0 + (num_players - 1) * 0.20;
         global.coop_boss_mult = 1.0 + (num_players - 1) * 0.40;
 
+        if (global.saxmode && num_players > 1)
+            global.coop_boss_damage_mult = max(0.35, 1.0 - (num_players - 1) * 0.13);
+        else
+            global.coop_boss_damage_mult = 1.0;
+
         if (global.base_mod_initialized == 1)
         {
             global.mod_zetahealth = ceil(global.base_mod_zetahealth * global.coop_boss_mult);
             global.mod_omegahealth = ceil(global.base_mod_omegahealth * global.coop_boss_mult);
-            global.mod_boss1Health = ceil(global.base_mod_boss1Health * (1.0 + (num_players - 1) * 0.15));
+            global.mod_boss1Health = ceil(global.base_mod_boss1Health * global.coop_boss_mult);
             global.mod_torizohealthform1 = ceil(global.base_mod_torizohealthform1 * global.coop_boss_mult);
             global.mod_torizohealthform2 = ceil(global.base_mod_torizohealthform2 * global.coop_boss_mult);
             global.mod_torizohealthform1hard = ceil(global.base_mod_torizohealthform1hard * global.coop_boss_mult);

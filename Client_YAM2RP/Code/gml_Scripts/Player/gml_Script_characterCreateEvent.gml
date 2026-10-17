@@ -66,6 +66,7 @@ sbstate = 0;
 sball = 0;
 speedboost_steps = 0;
 sprint_steps = 0;
+sprint_jumping = 0;
 speedboost = 0;
 shinespark = 0;
 dash = 0;

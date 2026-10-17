@@ -250,6 +250,7 @@ global.base_mod_coreErisHealthRed = global.mod_coreErisHealthRed;
 global.base_mod_initialized = 1;
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
+global.coop_boss_damage_mult = 1.0;
 update_variables("coop_scaling");
 global.percentscreen = 102;
 global.percent1M = 129;

@@ -84,17 +84,17 @@ if (argument3 == 0)
     }
 }
 
-if (global.saxmode)
+if (global.coop_boss_damage_mult < 1.0)
 {
     var isBossAttacker = 0;
     if (instance_exists(other))
     {
         var atObj = other.object_index;
-        if (atObj == oArachnus || atObj == oArachnusFireball1 || atObj == oArachnusFBExpl || atObj == oArachnusFireball2 || atObj == oArachnusFireball3 || atObj == oArachnusClawProj || atObj == oArachnusSpikes || atObj == oTorizo || atObj == oTorizo2 || atObj == oTorizoFireball || atObj == oTorizoSlashProj || atObj == oTorizoBottom || atObj == oTorizoSpikes || atObj == oTorizoGhost || atObj == oTesterGlass || atObj == oTesterIceSpark || atObj == oTesterMissileExpl || atObj == oTesterPlasmaBeam || atObj == oTesterSpazerBeam || atObj == oTesterWaveBeam || atObj == oTesterShield || atObj == oTank || atObj == oTankHead || atObj == oTankProjectile || atObj == oTankCannon || atObj == oTankBottom || atObj == oTankCore || atObj == oEris || atObj == oErisBody1 || atObj == oErisHead || atObj == oErisSegment || atObj == oErisProjectile || atObj == oGenesis || atObj == oGenesisAcid || atObj == oGenesisSlashProj || atObj == oQueen || atObj == oQueenHead || atObj == oQueenLegFront || atObj == oQueenHeadTop || atObj == oQueenFireball || atObj == oCoreXShell || atObj == oBoss1Beam || atObj == oBoss1FBall || atObj == oBoss1FBExplR || atObj == oBoss1FBExplL || atObj == oBoss1FBall2 || atObj == oBoss1FBExpl2 || atObj == oBoss1FBall3 || atObj == oMAlpha || atObj == oMGamma || atObj == oMZetaHead || atObj == oMZetaBodyMask || atObj == oMZetaSlashProj || atObj == oMZetaSlashProj2 || atObj == oMZetaProj || atObj == oMOmegaHead || atObj == oMOmegaMask || atObj == oMOmegaGroundHit || atObj == oMOmegaFlame || atObj == oMOmegaMask2 || atObj == oMOmegaMask4 || atObj == oMOmega_Projectile)
+        if (atObj == oBoss1Head || atObj == oArachnus || atObj == oArachnusFireball1 || atObj == oArachnusFBExpl || atObj == oArachnusFireball2 || atObj == oArachnusFireball3 || atObj == oArachnusClawProj || atObj == oArachnusSpikes || atObj == oTorizo || atObj == oTorizo2 || atObj == oTorizoFireball || atObj == oTorizoSlashProj || atObj == oTorizoBottom || atObj == oTorizoSpikes || atObj == oTorizoGhost || atObj == oTesterGlass || atObj == oTesterIceSpark || atObj == oTesterMissileExpl || atObj == oTesterPlasmaBeam || atObj == oTesterSpazerBeam || atObj == oTesterWaveBeam || atObj == oTesterShield || atObj == oTank || atObj == oTankHead || atObj == oTankProjectile || atObj == oTankCannon || atObj == oTankBottom || atObj == oTankCore || atObj == oEris || atObj == oErisBody1 || atObj == oErisHead || atObj == oErisSegment || atObj == oErisProjectile || atObj == oGenesis || atObj == oGenesisAcid || atObj == oGenesisSlashProj || atObj == oQueen || atObj == oQueenHead || atObj == oQueenLegFront || atObj == oQueenHeadTop || atObj == oQueenFireball || atObj == oCoreXShell || atObj == oBoss1Beam || atObj == oBoss1FBall || atObj == oBoss1FBExplR || atObj == oBoss1FBExplL || atObj == oBoss1FBall2 || atObj == oBoss1FBExpl2 || atObj == oBoss1FBall3 || atObj == oMAlpha || atObj == oMGamma || atObj == oMZetaHead || atObj == oMZetaBodyMask || atObj == oMZetaSlashProj || atObj == oMZetaSlashProj2 || atObj == oMZetaProj || atObj == oMOmegaHead || atObj == oMOmegaMask || atObj == oMOmegaGroundHit || atObj == oMOmegaFlame || atObj == oMOmegaMask2 || atObj == oMOmegaMask4 || atObj == oMOmega_Projectile)
             isBossAttacker = 1;
     }
     if (isBossAttacker)
-        damage_taken = ceil(damage_taken * 0.85);
+        damage_taken = ceil(damage_taken * global.coop_boss_damage_mult);
 }
 
 if (global.playerhealth > 0)

@@ -1146,6 +1146,11 @@ if ((state == STANDING || state == DUCKING || state == RUNNING) && charge > 0 &&
 
 if (kJump && kJumpPushedSteps == 0 && state != BALL && state != AIRBALL && platformCharacterIs(ON_GROUND))
 {
+    if (sprint_steps >= 72 && speedboost == 0 && dash < 30)
+        sprint_jumping = 1;
+    else
+        sprint_jumping = 0;
+
     state = JUMPING;
     
     if ((kLeft == 0 && kRight == 0) || aimlock || monster_drain > 0)
@@ -3560,7 +3565,7 @@ if (speedmultiplier != 1)
     yVel *= speedmultiplier;
 }
 
-if (state == RUNNING && sprint_steps >= 72 && speedboost == 0 && dash < 30)
+if (((state == RUNNING && sprint_steps >= 72) || (state == JUMPING && vjump == 0 && sprint_jumping == 1)) && speedboost == 0 && dash < 30)
     xVel *= 1.2;
 
 if ((instance_exists(oEventCamera) || instance_exists(oEventCamera2)) && global.enablecontrol == 0)
@@ -4609,6 +4614,9 @@ else
 
 if (sprint_steps > 0 && state != RUNNING)
     sprint_steps = 0;
+
+if (state != JUMPING || walljumping == 1)
+    sprint_jumping = 0;
 
 if (canrecover > 0)
     canrecover -= 1;

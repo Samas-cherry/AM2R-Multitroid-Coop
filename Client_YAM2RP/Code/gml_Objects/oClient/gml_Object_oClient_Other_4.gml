@@ -27,6 +27,7 @@ instance_activate_all();
 // Co-Op Difficulty Rebalance (User Decision 3D)
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
+global.coop_boss_damage_mult = 1.0;
 update_variables("coop_scaling");
 
 if (global.coop_enemy_mult > 1.0)
