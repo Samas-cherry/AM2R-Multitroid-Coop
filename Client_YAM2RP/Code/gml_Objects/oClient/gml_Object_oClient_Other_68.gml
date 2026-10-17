@@ -1759,6 +1759,12 @@ switch (type_event)
                         {
                             spawned.reform = -1;
                             spawned.lastEnemy = -1;
+                            spawned.sizeX = 5.8;
+                            spawned.sizeY = 4.2;
+                            spawned.state = 1;
+                            spawned.statetime = 40;
+                            spawned.counter = 0;
+                            spawned.collectable = 1;
                         }
                     }
                 }

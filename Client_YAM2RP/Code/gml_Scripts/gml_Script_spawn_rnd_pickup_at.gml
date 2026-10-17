@@ -1,3 +1,15 @@
+var isXMode;
+var xx;
+var yy;
+var spawnX;
+var drop_code;
+var needHealth;
+var needMissiles;
+var needSMissiles;
+var p_i;
+var pArr;
+var dropBuf;
+
 // Only room authority rolls drops when playing in co-op in the same room
 if (instance_exists(oClient))
 {
@@ -7,27 +19,27 @@ if (instance_exists(oClient))
 
 if (random(100) <= argument2)
 {
-    var isXMode = (oControl.mod_fusion == 1 || global.sax || global.saxmode);
+    isXMode = (oControl.mod_fusion == 1 || global.sax || global.saxmode);
     if (sprite_index != sQueenProjFrozen)
         xParasite = "Snooping around as usual, I see.";
     
     pickup = irandom(3);
-    var spawnX = 0;
-    var drop_code = 0;
-    var xx = argument0;
-    var yy = argument1;
+    spawnX = 0;
+    drop_code = 0;
+    xx = argument0;
+    yy = argument1;
     
-    var needHealth = (global.playerhealth < global.maxhealth);
-    var needMissiles = (global.missiles < global.maxmissiles && global.maxmissiles > 0);
-    var needSMissiles = (global.smissiles < global.maxsmissiles && global.maxsmissiles > 0);
+    needHealth = (global.playerhealth < global.maxhealth);
+    needMissiles = (global.missiles < global.maxmissiles && global.maxmissiles > 0);
+    needSMissiles = (global.smissiles < global.maxsmissiles && global.maxsmissiles > 0);
     
     if (instance_exists(oClient))
     {
         if (ds_list_size(oClient.roomListData) > 0)
         {
-            for (var pi = 0; pi < ds_list_size(oClient.roomListData); pi++)
+            for (p_i = 0; p_i < ds_list_size(oClient.roomListData); p_i += 1)
             {
-                var pArr = ds_list_find_value(oClient.roomListData, pi);
+                pArr = ds_list_find_value(oClient.roomListData, p_i);
                 if (is_array(pArr))
                 {
                     if (array_length_1d(pArr) > 25)
@@ -135,7 +147,7 @@ if (random(100) <= argument2)
     {
         if (oClient.connected && ds_list_size(oClient.roomList) > 0)
         {
-            var dropBuf = buffer_create(64, buffer_grow, 1);
+            dropBuf = buffer_create(64, buffer_grow, 1);
             buffer_seek(dropBuf, buffer_seek_start, 0);
             buffer_write(dropBuf, buffer_s32, 0);
             buffer_write(dropBuf, buffer_u8, 87);
