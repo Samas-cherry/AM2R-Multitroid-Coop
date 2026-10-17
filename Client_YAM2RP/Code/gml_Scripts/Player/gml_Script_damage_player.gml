@@ -105,6 +105,8 @@ if (global.playerhealth > 0)
 {
     with (oCharacter)
     {
+        sprint_steps = 0;
+        sprint_jumping = 0;
         var currState = state;
         
         if (((state != HURT && invincible == 0) || (argument4 == 1 && statetime > 2)) && !global.ignoreKnockback)

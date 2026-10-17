@@ -1025,11 +1025,19 @@ if ((isCollisionBottom(1) || isCollisionPlatformBottom(1)) && platformCharacterI
         if (state != AIRBALL)
         {
             image_index = 0;
-            state = STANDING;
+            if (sprint_jumping == 1 && ((facing == RIGHT && kRight > 0 && kLeft == 0) || (facing == LEFT && kLeft > 0 && kRight == 0)))
+            {
+                state = RUNNING;
+                landing = 0;
+            }
+            else
+            {
+                state = STANDING;
+                xVel = 0;
+                xAcc = 0;
+            }
             idle = 0;
             statetime = 0;
-            xVel = 0;
-            xAcc = 0;
             PlayLandingSound(get_floor_material());
         }
         
@@ -1146,7 +1154,7 @@ if ((state == STANDING || state == DUCKING || state == RUNNING) && charge > 0 &&
 
 if (kJump && kJumpPushedSteps == 0 && state != BALL && state != AIRBALL && platformCharacterIs(ON_GROUND))
 {
-    if (sprint_steps >= 72 && speedboost == 0 && dash < 30)
+    if (sprint_steps >= 66 && speedboost == 0 && dash < 30)
         sprint_jumping = 1;
     else
         sprint_jumping = 0;
@@ -3565,7 +3573,7 @@ if (speedmultiplier != 1)
     yVel *= speedmultiplier;
 }
 
-if (((state == RUNNING && sprint_steps >= 72) || (state == JUMPING && vjump == 0 && sprint_jumping == 1)) && speedboost == 0 && dash < 30)
+if (((state == RUNNING && sprint_steps >= 66) || (state == JUMPING && sprint_jumping == 1)) && speedboost == 0 && dash < 30)
     xVel *= 1.2;
 
 if ((instance_exists(oEventCamera) || instance_exists(oEventCamera2)) && global.enablecontrol == 0)
@@ -4607,16 +4615,61 @@ else
 if (speedboost_steps > 0 && state != RUNNING)
     speedboost_steps = 0;
 
-if (state == RUNNING && (kLeft > 0 || kRight > 0) && turning == 0)
-    sprint_steps += 1;
-else
+if (state == HURT || state == BALL || state == AIRBALL || state == SPIDERBALL || state == MORPHING || state == GRIP || walljumping == 1)
+{
     sprint_steps = 0;
-
-if (sprint_steps > 0 && state != RUNNING)
-    sprint_steps = 0;
-
-if (state != JUMPING || walljumping == 1)
     sprint_jumping = 0;
+}
+else if (state == RUNNING)
+{
+    if ((kLeft > 0 || kRight > 0) && turning == 0)
+    {
+        if (abs(xVel) < 0.1 && statetime > 2)
+        {
+            sprint_steps = 0;
+            sprint_jumping = 0;
+        }
+        else
+        {
+            sprint_steps += 1;
+            sprint_jumping = 0;
+        }
+    }
+    else
+    {
+        sprint_steps = 0;
+        sprint_jumping = 0;
+    }
+}
+else if (state == JUMPING && sprint_jumping == 1)
+{
+    if (((facing == RIGHT && kRight > 0 && kLeft == 0) || (facing == LEFT && kLeft > 0 && kRight == 0)))
+    {
+        if (abs(xVel) < 0.1 && statetime > 4)
+        {
+            sprint_steps = 0;
+            sprint_jumping = 0;
+        }
+        else
+        {
+            sprint_steps = max(sprint_steps, 66);
+        }
+    }
+    else
+    {
+        sprint_steps = 0;
+        sprint_jumping = 0;
+    }
+}
+else if (state == STANDING && sprint_jumping == 1 && ((facing == RIGHT && kRight > 0 && kLeft == 0) || (facing == LEFT && kLeft > 0 && kRight == 0)) && turning == 0)
+{
+    sprint_steps = max(sprint_steps, 66);
+}
+else
+{
+    sprint_steps = 0;
+    sprint_jumping = 0;
+}
 
 if (canrecover > 0)
     canrecover -= 1;
