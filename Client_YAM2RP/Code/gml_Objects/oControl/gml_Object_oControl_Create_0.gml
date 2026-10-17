@@ -252,7 +252,6 @@ global.saxmode = 0;
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
 global.coop_boss_damage_mult = 1.0;
-update_variables("coop_scaling");
 global.percentscreen = 102;
 global.percent1M = 129;
 global.percent1SM = 211;

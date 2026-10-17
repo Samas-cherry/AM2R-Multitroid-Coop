@@ -63,10 +63,13 @@ switch (argument0)
         break;
 
     case "initprev":
-        global.itemPrev = array_clone(global.item);
+        if (is_array(global.item))
+            global.itemPrev = array_clone(global.item);
         global.itemstakenPrev = global.itemstaken;
-        global.metdeadPrev = array_clone(global.metdead);
-        global.eventPrev = array_clone(global.event);
+        if (is_array(global.metdead))
+            global.metdeadPrev = array_clone(global.metdead);
+        if (is_array(global.event))
+            global.eventPrev = array_clone(global.event);
         global.monstersleftPrev = global.monstersleft;
         global.maxmissilesPrev = global.maxmissiles;
         global.maxsmissilesPrev = global.maxsmissiles;
@@ -97,7 +100,8 @@ switch (argument0)
         global.currentsuitPrev = global.currentsuit;
         global.monstersareaPrev = global.monstersarea;
         global.lavastatePrev = global.lavastate;
-        global.dmapPrev = array_clone(global.dmap);
+        if (is_array(global.dmap))
+            global.dmapPrev = array_clone(global.dmap);
         break;
     
     case "updateprev":
