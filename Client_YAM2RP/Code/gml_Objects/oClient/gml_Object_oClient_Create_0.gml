@@ -1,5 +1,21 @@
 network_set_config(network_config_connect_timeout, 5000);
 strict_init(working_directory + "/multitroid/dictionary.json");
+if (!is_array(global.item) || !is_array(global.event) || !is_array(global.metdead) || !is_array(global.dmap))
+{
+    load_character_vars();
+}
+if (!is_array(global.startingminors))
+{
+    global.startingminors = 0;
+    global.startingminors[0] = 0;
+    global.startingminors[1] = 0;
+    global.startingminors[2] = 0;
+    global.startingminors[3] = 0;
+    global.startingminors[4] = 0;
+    global.startingminors[5] = 0;
+    global.startingminors[6] = 0;
+    global.startingminors[7] = 0;
+}
 global.coop_enemy_mult = 1.0;
 global.coop_boss_mult = 1.0;
 global.coop_boss_damage_mult = 1.0;

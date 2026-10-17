@@ -3,11 +3,26 @@ switch (argument0)
     case "initprev":
         if (is_array(global.item))
             global.itemPrev = array_clone(global.item);
+        else
+        {
+            global.itemPrev = 0;
+            global.itemPrev[0] = 0;
+        }
         global.itemstakenPrev = global.itemstaken;
         if (is_array(global.metdead))
             global.metdeadPrev = array_clone(global.metdead);
+        else
+        {
+            global.metdeadPrev = 0;
+            global.metdeadPrev[0] = 0;
+        }
         if (is_array(global.event))
             global.eventPrev = array_clone(global.event);
+        else
+        {
+            global.eventPrev = 0;
+            global.eventPrev[0] = 0;
+        }
         global.monstersleftPrev = global.monstersleft;
         global.maxmissilesPrev = global.maxmissiles;
         global.maxsmissilesPrev = global.maxsmissiles;
@@ -40,6 +55,11 @@ switch (argument0)
         global.lavastatePrev = global.lavastate;
         if (is_array(global.dmap))
             global.dmapPrev = array_clone(global.dmap);
+        else
+        {
+            global.dmapPrev = 0;
+            global.dmapPrev[0, 0] = 0;
+        }
         break;
     
     case "updateprev":

@@ -149,7 +149,8 @@ if (time == 0 && connected && instance_exists(id))
         for (var i = 0; i < ds_list_size(global.idList); i++)
         {
             var arr = ds_list_find_value(global.idList, i);
-            ds_list_add(checkListID, arr[0, 0]);
+            if (is_array(arr))
+                ds_list_add(checkListID, arr[0, 0]);
         }
         
         for (var i = 0; i < ds_list_size(roomList); i++)

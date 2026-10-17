@@ -548,15 +548,18 @@ if (global.classicmode == 0 && global.opshowhud)
                 for (var f = 0; f < ds_list_size(global.idList); f++)
                 {
                     var arrList = ds_list_find_value(global.idList, f);
-                    var ID = arrList[0, 0];
-                    var color = arrList[0, 4];
-                    var _x = 10 * floor(f / 2);
-                    var _y = 10 * (f % 2);
-                    
-                    if (ID == global.clientID)
-                        draw_sprite(oControl.MultitroidIcon, color - 1, (240 - _x) + widescreen_space, 5 + _y);
-                    else
-                        draw_sprite(oControl.MultitroidIconDark, color - 1, (240 - _x) + widescreen_space, 5 + _y);
+                    if (is_array(arrList))
+                    {
+                        var ID = arrList[0, 0];
+                        var color = arrList[0, 4];
+                        var _x = 10 * floor(f / 2);
+                        var _y = 10 * (f % 2);
+                        
+                        if (ID == global.clientID)
+                            draw_sprite(oControl.MultitroidIcon, color - 1, (240 - _x) + widescreen_space, 5 + _y);
+                        else
+                            draw_sprite(oControl.MultitroidIconDark, color - 1, (240 - _x) + widescreen_space, 5 + _y);
+                    }
                 }
             }
             else if (ds_list_size(global.idList) == 1 || ds_list_size(global.idList) == 0)
@@ -619,10 +622,13 @@ if (global.classicmode == 0 && global.opshowhud)
                 for (var f = 0; f < ds_list_size(global.idList); f++)
                 {
                     var arrList = ds_list_find_value(global.idList, f);
-                    if (arrList[0, 0] == arrData[0])
+                    if (is_array(arrList))
                     {
-                        color = arrList[0, 4];
-                        break;
+                        if (arrList[0, 0] == arrData[0])
+                        {
+                            color = arrList[0, 4];
+                            break;
+                        }
                     }
                 }
                 

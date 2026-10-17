@@ -47,25 +47,31 @@ if (ds_list_size(roomListData) > 0)
         for (var f = 0; f < ds_list_size(global.idList); f++)
         {
             var arrList = ds_list_find_value(global.idList, f);
-            if (arrList[0, 0] == arrID)
+            if (is_array(arrList))
             {
-                color = arrList[0, 4];
-                break;
+                if (arrList[0, 0] == arrID)
+                {
+                    color = arrList[0, 4];
+                    break;
+                }
             }
         }
         
         for (var i = 0; i < ds_list_size(global.otherPlayerItems); i++)
         {
             var tempArr = ds_list_find_value(global.otherPlayerItems, i);
-            var ID = tempArr[0];
-            
-            if (ID == arrID)
+            if (is_array(tempArr))
             {
-                spacejump = tempArr[2];
-                screwattack = tempArr[3];
-                spiderball = tempArr[4];
-                speedbooster = tempArr[5];
-                canScrew = tempArr[12];
+                var ID = tempArr[0];
+                
+                if (ID == arrID)
+                {
+                    spacejump = tempArr[2];
+                    screwattack = tempArr[3];
+                    spiderball = tempArr[4];
+                    speedbooster = tempArr[5];
+                    canScrew = tempArr[12];
+                }
             }
         }
         
@@ -349,22 +355,27 @@ if (instance_exists(oMapCursor))
         for (var i = 0; i < ds_list_size(posData); i++)
         {
             var arrMapIcon = ds_list_find_value(posData, i);
-            var arrID = arrMapIcon[0];
-            var arrX = arrMapIcon[1];
-            var arrY = arrMapIcon[2];
-            var sax = arrMapIcon[3];
-            var spectator = arrMapIcon[5];
-            
-            var color = 1;
-            for (var f = 0; f < ds_list_size(global.idList); f++)
+            if (is_array(arrMapIcon))
             {
-                var arrList = ds_list_find_value(global.idList, f);
-                if (arrList[0, 0] == arrID)
+                var arrID = arrMapIcon[0];
+                var arrX = arrMapIcon[1];
+                var arrY = arrMapIcon[2];
+                var sax = arrMapIcon[3];
+                var spectator = arrMapIcon[5];
+                
+                var color = 1;
+                for (var f = 0; f < ds_list_size(global.idList); f++)
                 {
-                    color = arrList[0, 4];
-                    break;
+                    var arrList = ds_list_find_value(global.idList, f);
+                    if (is_array(arrList))
+                    {
+                        if (arrList[0, 0] == arrID)
+                        {
+                            color = arrList[0, 4];
+                            break;
+                        }
+                    }
                 }
-            }
 
             if ((global.spectator && !global.sax) || (global.sax && global.juggActive))
             {
@@ -392,6 +403,7 @@ if (instance_exists(oMapCursor))
             {
                 draw_sprite_ext(oControl.MultitroidMapIcon, color - 1, arrX * 8, (arrY * 8) + 32, 1, 1, direction, c_white, oMapCursor.image_alpha);
             }
+            }
         }
     }
     
@@ -407,15 +419,18 @@ if (instance_exists(oMapCursor))
         for (var f = 0; f < ds_list_size(global.idList); f++)
         {
             var arrList = ds_list_find_value(global.idList, f);
-            var ID = arrList[0, 0];
-            var color = arrList[0, 4];
-            var _x = 10 * floor(f / 2);
-            var _y = 10 * (f % 2);
-            
-            if (ID == global.clientID)
-                draw_sprite_ext(oControl.MultitroidIcon, color - 1, (view_xview[0] - (oControl.widescreen_space / 2)) + 2 + _x, view_yview[0] + 44 + 13 + _y, 1, 1, direction, c_white, 1);
-            else
-                draw_sprite_ext(oControl.MultitroidIconDark, color - 1, (view_xview[0] - (oControl.widescreen_space / 2)) + 2 + _x, view_yview[0] + 44 + 13 + _y, 1, 1, direction, c_white, 1);
+            if (is_array(arrList))
+            {
+                var ID = arrList[0, 0];
+                var color = arrList[0, 4];
+                var _x = 10 * floor(f / 2);
+                var _y = 10 * (f % 2);
+                
+                if (ID == global.clientID)
+                    draw_sprite_ext(oControl.MultitroidIcon, color - 1, (view_xview[0] - (oControl.widescreen_space / 2)) + 2 + _x, view_yview[0] + 44 + 13 + _y, 1, 1, direction, c_white, 1);
+                else
+                    draw_sprite_ext(oControl.MultitroidIconDark, color - 1, (view_xview[0] - (oControl.widescreen_space / 2)) + 2 + _x, view_yview[0] + 44 + 13 + _y, 1, 1, direction, c_white, 1);
+            }
         }
     }
     else if (ds_list_size(global.idList) == 1 || ds_list_size(global.idList) == 0)

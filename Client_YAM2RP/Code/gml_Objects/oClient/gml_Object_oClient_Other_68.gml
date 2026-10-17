@@ -38,16 +38,22 @@ switch (type_event)
                 {
                     var arrList = ds_list_find_value(roomListData, i);
                     
-                    if (arrList[0] == clientID)
-                        ds_list_delete(roomListData, i);
+                    if (is_array(arrList))
+                    {
+                        if (arrList[0] == clientID)
+                            ds_list_delete(roomListData, i);
+                    }
                 }
                 
                 for (var f = 0; f < ds_list_size(global.idList); f++)
                 {
                     var arrList = ds_list_find_value(global.idList, f);
                     
-                    if (clientID == arrList[0, 0])
-                        ds_list_delete(global.idList, f);
+                    if (is_array(arrList))
+                    {
+                        if (clientID == arrList[0, 0])
+                            ds_list_delete(global.idList, f);
+                    }
                 }
                 var num_players = max(1, ds_list_size(global.idList));
                 global.coop_enemy_mult = 1.0 + (num_players - 1) * 0.20;
@@ -103,8 +109,11 @@ switch (type_event)
                 {
                     var arrList = ds_list_find_value(posData, v);
                     
-                    if (clientID == arrList[0])
-                        ds_list_delete(posData, v);
+                    if (is_array(arrList))
+                    {
+                        if (clientID == arrList[0])
+                            ds_list_delete(posData, v);
+                    }
                 }
                 
                 if (instance_exists(oHatchling))
@@ -254,8 +263,11 @@ switch (type_event)
                         {
                             var arrList = ds_list_find_value(roomListData, i);
                             
-                            if (arrList[0] == indexValue)
-                                ds_list_set(roomListData, i, arr);
+                            if (is_array(arrList))
+                            {
+                                if (arrList[0] == indexValue)
+                                    ds_list_set(roomListData, i, arr);
+                            }
                         }
                         
                         if (clientRoom != room && clientRoom != 6 && clientRoom != 10 && clientRoom != 9 && clientRoom != 11 && clientRoom != 16)
@@ -269,8 +281,11 @@ switch (type_event)
                             {
                                 var arrList = ds_list_find_value(roomListData, i);
                                 
-                                if (arrList[0] == indexValue)
-                                    ds_list_delete(roomListData, i);
+                                if (is_array(arrList))
+                                {
+                                    if (arrList[0] == indexValue)
+                                        ds_list_delete(roomListData, i);
+                                }
                             }
                         }
                     }
@@ -305,8 +320,11 @@ switch (type_event)
                         {
                             var arrList = ds_list_find_value(roomListData, i);
                             
-                            if (arrList[0] == clientID)
-                                ds_list_delete(roomListData, i);
+                            if (is_array(arrList))
+                            {
+                                if (arrList[0] == clientID)
+                                    ds_list_delete(roomListData, i);
+                            }
                         }
                     }
                 }
@@ -319,10 +337,13 @@ switch (type_event)
                     {
                         var arrList = ds_list_find_value(roomListData, i);
                         
-                        if (arrList[0] == clientID)
+                        if (is_array(arrList))
                         {
-                            arrList[14] = clientRoom;
-                            ds_list_set(roomListData, i, arrList);
+                            if (arrList[0] == clientID)
+                            {
+                                arrList[14] = clientRoom;
+                                ds_list_set(roomListData, i, arrList);
+                            }
                         }
                     }
                 }
@@ -348,10 +369,13 @@ switch (type_event)
                             for (var v = 0; v < ds_list_size(posData); v++)
                             {
                                 var arr = ds_list_find_value(posData, v);
-                                ds_list_add(checkList, arr[0]);
-                                
-                                if (arr[0] == clientID)
-                                    ds_list_set(posData, v, arrPosData);
+                                if (is_array(arr))
+                                {
+                                    ds_list_add(checkList, arr[0]);
+                                    
+                                    if (arr[0] == clientID)
+                                        ds_list_set(posData, v, arrPosData);
+                                }
                             }
                             
                             var find = ds_list_find_index(checkList, clientID);
@@ -380,7 +404,7 @@ switch (type_event)
                 
                 ds_list_destroy(checkList);
                 
-                if (clientRoom == 216 && room != rm_a4b01 && global.event[203] > 0 && global.event[203] < 9 && !teleport)
+                if (clientRoom == 216 && room != rm_a4b01 && is_array(global.event) && global.event[203] > 0 && global.event[203] < 9 && !teleport)
                 {
                     if (room == rm_a4b02 || room == rm_a4b03 || room == rm_a4b04 || room == rm_a4b05 || room == rm_a4b06 || room == rm_a4b07 || room == rm_a4b08 || room == rm_a4b09 || room == rm_a4b10 || room == rm_a4b11 || room == rm_a4b12 || room == rm_a4b13 || room == rm_a4b14 || room == rm_a4b15 || room == rm_a4b16 || room == rm_a4b17 || room == rm_a4b18 || room == rm_a4b19)
                     {
@@ -522,12 +546,15 @@ switch (type_event)
                     for (var i = 0; i < ds_list_size(global.otherPlayerItems); i++)
                     {
                         var tempArr = ds_list_find_value(global.otherPlayerItems, i);
-                        var ID = tempArr[0];
-                        
-                        if (ID == clientID)
+                        if (is_array(tempArr))
                         {
-                            IDCheck = 1;
-                            ds_list_set(global.otherPlayerItems, i, otherItemArr);
+                            var ID = tempArr[0];
+                            
+                            if (ID == clientID)
+                            {
+                                IDCheck = 1;
+                                ds_list_set(global.otherPlayerItems, i, otherItemArr);
+                            }
                         }
                     }
                     
@@ -604,7 +631,13 @@ switch (type_event)
                 
                 for (var i = 0; i < 15; i += 1)
                 {
-                    if (buffer_read(_buffer, buffer_u8) == 1 && global.saxmode && global.sax && !global.item[i] && instance_number(oCoreXSyncedItem) == 0 && string_count("rm_a", room_get_name(room)))
+                    var isItemCollected = 0;
+                    if (is_array(global.item))
+                    {
+                        if (i < array_length_1d(global.item))
+                            isItemCollected = global.item[i];
+                    }
+                    if (buffer_read(_buffer, buffer_u8) == 1 && global.saxmode && global.sax && !isItemCollected && instance_number(oCoreXSyncedItem) == 0 && string_count("rm_a", room_get_name(room)))
                     {
                         var core = instance_create(irandom_range(0, room_width), -100, oCoreXSyncedItem);
                         core.itemtype = i;
@@ -894,7 +927,7 @@ switch (type_event)
                 var clientID = buffer_read(_buffer, buffer_u8);
                 var itemArr = ds_list_find_value(ITEMM, 0);
                 
-                if (is_array(itemArr))
+                if (is_array(itemArr) && is_array(global.item) && is_array(global.itemPrev))
                 {
                     for (var i = 0; i < array_length_1d(global.item); i++)
                     {
@@ -1088,7 +1121,7 @@ switch (type_event)
                 var clientID = buffer_read(_buffer, buffer_u8);
                 var metdeadArr = ds_list_find_value(metdead, 0);
                 
-                if (is_array(metdeadArr))
+                if (is_array(metdeadArr) && is_array(global.metdead) && is_array(global.metdeadPrev))
                 {
                     for (var i = 0; i < array_length_1d(global.metdead); i++)
                     {
@@ -1127,7 +1160,7 @@ switch (type_event)
                 var clientID = buffer_read(_buffer, buffer_u8);
                 var eventArr = ds_list_find_value(event, 0);
                 
-                if (is_array(eventArr))
+                if (is_array(eventArr) && is_array(global.event) && is_array(global.eventPrev))
                 {
                     for (var i = 0; i < array_length_1d(global.event); i++)
                     {
@@ -1179,20 +1212,24 @@ switch (type_event)
                         var tileX = buffer_read(_buffer, buffer_u8);
                         var tileY = buffer_read(_buffer, buffer_u8);
                         var tileData = buffer_read(_buffer, buffer_u8);
-                        global.dmapPrev[tileX, tileY] = tileData;
+                        if (is_array(global.dmapPrev))
+                            global.dmapPrev[tileX, tileY] = tileData;
                         
-                        if (global.dmap[tileX, tileY] != tileData)
+                        if (is_array(global.dmap))
                         {
-                            global.dmap[tileX, tileY] = tileData;
-                            
-                            if (global.ingame)
+                            if (global.dmap[tileX, tileY] != tileData)
                             {
-                                with (oControl)
-                                    event_user(2);
+                                global.dmap[tileX, tileY] = tileData;
+                                
+                                if (global.ingame)
+                                {
+                                    with (oControl)
+                                        event_user(2);
+                                }
+                                
+                                if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
+                                    surface_free(oSS_Control.s_map);
                             }
-                            
-                            if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
-                                surface_free(oSS_Control.s_map);
                         }
                     }
                     
@@ -1389,14 +1426,17 @@ switch (type_event)
                     for (var i = 0; i < ds_list_size(roomListData); i++)
                     {
                         var arrDraw = ds_list_find_value(roomListData, i);
-                        var arrID = arrDraw[0];
-                        
-                        if (clientID == arrID)
+                        if (is_array(arrDraw))
                         {
-                            if (instance_exists(oCharacter))
+                            var arrID = arrDraw[0];
+                            
+                            if (clientID == arrID)
                             {
-                                with (oCharacter)
-                                    shoot_beam_receive(sprX, sprY, dir, charge, sax, clientID);
+                                if (instance_exists(oCharacter))
+                                {
+                                    with (oCharacter)
+                                        shoot_beam_receive(sprX, sprY, dir, charge, sax, clientID);
+                                }
                             }
                         }
                     }
@@ -1415,16 +1455,19 @@ switch (type_event)
                     for (var i = 0; i < ds_list_size(roomListData); i++)
                     {
                         var arrDraw = ds_list_find_value(roomListData, i);
-                        var arrID = arrDraw[0];
-                        
-                        if (clientID == arrID)
+                        if (is_array(arrDraw))
                         {
-                            if (instance_exists(oCharacter))
+                            var arrID = arrDraw[0];
+                            
+                            if (clientID == arrID)
                             {
-                                var bomb = instance_create(bombX, bombY, oBombMulti);
-                                bomb.sax = sax;
-                                bomb.myid = clientID;
-                                sfx_play(89);
+                                if (instance_exists(oCharacter))
+                                {
+                                    var bomb = instance_create(bombX, bombY, oBombMulti);
+                                    bomb.sax = sax;
+                                    bomb.myid = clientID;
+                                    sfx_play(89);
+                                }
                             }
                         }
                     }
@@ -1448,14 +1491,17 @@ switch (type_event)
                     for (var i = 0; i < ds_list_size(roomListData); i++)
                     {
                         var arrDraw = ds_list_find_value(roomListData, i);
-                        var arrID = arrDraw[0];
-                        
-                        if (clientID == arrID)
+                        if (is_array(arrDraw))
                         {
-                            if (instance_exists(oCharacter))
+                            var arrID = arrDraw[0];
+                            
+                            if (clientID == arrID)
                             {
-                                with (oCharacter)
-                                    shoot_missile_receive(dir, currentWeapon, missileX, missileY, sax, clientID, velX, velY, icemissiles);
+                                if (instance_exists(oCharacter))
+                                {
+                                    with (oCharacter)
+                                        shoot_missile_receive(dir, currentWeapon, missileX, missileY, sax, clientID, velX, velY, icemissiles);
+                                }
                             }
                         }
                     }
@@ -1474,17 +1520,20 @@ switch (type_event)
                     for (var i = 0; i < ds_list_size(roomListData); i++)
                     {
                         var arrDraw = ds_list_find_value(roomListData, i);
-                        var arrID = arrDraw[0];
-                        
-                        if (clientID == arrID)
+                        if (is_array(arrDraw))
                         {
-                            if (instance_exists(oCharacter))
+                            var arrID = arrDraw[0];
+                            
+                            if (clientID == arrID)
                             {
-                                pbomb = instance_create(pbombX, pbombY, oPBombMulti);
-                                pbomb.enemy = 0;
-                                pbomb.sax = sax;
-                                pbomb.myid = clientID;
-                                sfx_play(128);
+                                if (instance_exists(oCharacter))
+                                {
+                                    pbomb = instance_create(pbombX, pbombY, oPBombMulti);
+                                    pbomb.enemy = 0;
+                                    pbomb.sax = sax;
+                                    pbomb.myid = clientID;
+                                    sfx_play(128);
+                                }
                             }
                         }
                     }
@@ -1823,6 +1872,11 @@ switch (type_event)
             
             case 50:
                 var resend = 0;
+                if (!is_array(global.item) || !is_array(global.itemPrev))
+                {
+                    load_character_vars();
+                    update_variables("initprev");
+                }
                 
                 for (var i = 0; i < array_length_1d(global.item); i++)
                 {
@@ -2118,8 +2172,14 @@ switch (type_event)
                 {
                     with (oItem)
                     {
-                        if (global.item[itemid] == 1)
-                            instance_destroy();
+                        if (is_array(global.item))
+                        {
+                            if (itemid < array_length_1d(global.item))
+                            {
+                                if (global.item[itemid] == 1)
+                                    instance_destroy();
+                            }
+                        }
                     }
                 }
                 
@@ -2155,6 +2215,11 @@ switch (type_event)
             
             case 51:
                 var resend = 0;
+                if (!is_array(global.event) || !is_array(global.eventPrev))
+                {
+                    load_character_vars();
+                    update_variables("initprev");
+                }
                 
                 for (var i = 0; i < array_length_1d(global.event); i++)
                 {
@@ -2202,6 +2267,11 @@ switch (type_event)
             
             case 52:
                 var resend = 0;
+                if (!is_array(global.metdead) || !is_array(global.metdeadPrev))
+                {
+                    load_character_vars();
+                    update_variables("initprev");
+                }
                 
                 for (var i = 0; i < array_length_1d(global.metdead); i++)
                 {
@@ -2351,6 +2421,11 @@ switch (type_event)
             case 53:
                 var part = buffer_read(_buffer, buffer_u8);
                 var resend = 0;
+                if (!is_array(global.dmap) || !is_array(global.dmapPrev))
+                {
+                    load_character_vars();
+                    update_variables("initprev");
+                }
                 
                 for (var i = 0; i < array_height_2d(global.dmap); i++)
                 {
@@ -2415,6 +2490,16 @@ switch (type_event)
                 break;
             
             case 61:
+                if (!is_array(global.itemsyncs))
+                {
+                    global.itemsyncs = 0;
+                    for (var k = 0; k <= 16; k++) global.itemsyncs[k] = 0;
+                }
+                if (!is_array(global.startingminors))
+                {
+                    global.startingminors = 0;
+                    for (var k = 0; k <= 7; k++) global.startingminors[k] = 0;
+                }
                 global.itemsyncs[0] = buffer_read(_buffer, buffer_u8);
                 global.itemsyncs[1] = buffer_read(_buffer, buffer_u8);
                 global.itemsyncs[2] = buffer_read(_buffer, buffer_u8);
@@ -2466,18 +2551,21 @@ switch (type_event)
                 for (var i = 0; i < ds_list_size(roomListData); i++)
                 {
                     var arrDraw = ds_list_find_value(roomListData, i);
-                    var arrID = arrDraw[0];
-                    
-                    if (clientID == arrID)
+                    if (is_array(arrDraw))
                     {
-                        var arrX = arrDraw[1];
-                        var arrY = arrDraw[2];
-                        var arrRoom = arrDraw[14];
+                        var arrID = arrDraw[0];
                         
-                        if (room == arrRoom)
+                        if (clientID == arrID)
                         {
-                            var number = instance_create(arrX - 4, arrY - 64, oDamageNumber);
-                            number.damage = damage;
+                            var arrX = arrDraw[1];
+                            var arrY = arrDraw[2];
+                            var arrRoom = arrDraw[14];
+                            
+                            if (room == arrRoom)
+                            {
+                                var number = instance_create(arrX - 4, arrY - 64, oDamageNumber);
+                                number.damage = damage;
+                            }
                         }
                     }
                 }
@@ -2485,7 +2573,8 @@ switch (type_event)
 
             case 72:
                 global.winningTeam = buffer_read(_buffer, buffer_u8);
-                global.event[308] = 1;
+                if (is_array(global.event))
+                    global.event[308] = 1;
                 break;
         }
 }
