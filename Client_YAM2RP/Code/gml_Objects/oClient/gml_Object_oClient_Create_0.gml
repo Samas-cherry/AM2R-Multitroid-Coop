@@ -1,5 +1,7 @@
 network_set_config(network_config_connect_timeout, 5000);
 strict_init(working_directory + "/multitroid/dictionary.json");
+global.coop_enemy_mult = 1.0;
+global.coop_boss_mult = 1.0;
 activeEnemyIds = -1;
 activeEnemyX = -1;
 activeEnemyY = -1;

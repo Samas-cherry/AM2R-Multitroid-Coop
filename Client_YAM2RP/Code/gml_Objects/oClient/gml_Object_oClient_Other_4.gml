@@ -22,10 +22,16 @@ if (room == 20)
     resetTimer = 5;
 
 // Co-Op Difficulty Rebalance (User Decision 3D)
+global.coop_enemy_mult = 1.0;
+global.coop_boss_mult = 1.0;
 update_variables("coop_scaling");
 
 if (global.coop_enemy_mult > 1.0)
 {
+    with (oEnemy)
+    {
+        coop_scaled = 0;
+    }
     with (oEnemy)
     {
         if (object_index != oBoss1Head && coop_scaled == 0)
