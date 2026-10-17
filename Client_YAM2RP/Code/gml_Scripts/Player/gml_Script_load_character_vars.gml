@@ -1,4 +1,3 @@
-writelog("load_character_vars: start");
 global.morphball = 1;
 global.jumpball = 0;
 global.powergrip = 1;
@@ -95,10 +94,7 @@ if (!is_array(global.itemsyncs))
     temp_is_init[12] = 1;
     global.itemsyncs = temp_is_init;
 }
-var current_sax = 0;
-if (variable_global_exists("sax"))
-    current_sax = global.sax;
-
+var current_sax = global.sax;
 var times = 0;
 
 if (is_array(global.startingminors) && global.startingminors[current_sax] > 0)
@@ -212,11 +208,12 @@ else
 global.missiles = global.maxmissiles;
 global.smissiles = global.maxsmissiles;
 global.pbombs = global.maxpbombs;
-global.dmapPrev = array_clone(global.dmap);
+if (is_array(global.dmap))
+    global.dmapPrev = array_clone(global.dmap);
 visible = true;
 if (is_array(global.itemsyncs))
 {
-    var has_sax = variable_global_exists("sax") && global.sax;
+    var has_sax = global.sax;
     global.item[0] = global.itemsyncs[11] == 1 || (has_sax && global.itemsyncs[11] == 2);
     global.item[2] = global.itemsyncs[9] == 1 || (has_sax && global.itemsyncs[9] == 2);
     global.item[3] = global.itemsyncs[10] == 1 || (has_sax && global.itemsyncs[10] == 2);
@@ -253,5 +250,5 @@ else if (global.item[5] == 1)
 else
     global.currentsuit = 0;
 
-global.itemPrev = array_clone(global.item);
-writelog("load_character_vars: end");
+if (is_array(global.item))
+    global.itemPrev = array_clone(global.item);

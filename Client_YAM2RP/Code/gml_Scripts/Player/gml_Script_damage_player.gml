@@ -84,9 +84,7 @@ if (argument3 == 0)
     }
 }
 
-var bossDamageMult = 1.0;
-if (variable_global_exists("coop_boss_damage_mult"))
-    bossDamageMult = global.coop_boss_damage_mult;
+var bossDamageMult = global.coop_boss_damage_mult;
 
 if (bossDamageMult < 1.0)
 {
