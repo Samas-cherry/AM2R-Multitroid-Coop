@@ -4615,7 +4615,7 @@ else
 if (speedboost_steps > 0 && state != RUNNING)
     speedboost_steps = 0;
 
-if (state == HURT || state == BALL || state == AIRBALL || state == SPIDERBALL || state == MORPHING || state == GRIP || walljumping == 1)
+if (state == HURT || state == BALL || state == AIRBALL || state == SPIDERBALL || morphing == 1 || unmorphing == 1 || state == GRIP || walljumping == 1)
 {
     sprint_steps = 0;
     sprint_jumping = 0;
