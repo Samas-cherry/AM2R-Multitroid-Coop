@@ -204,7 +204,7 @@ if (time == 0 && connected && instance_exists(id))
 // Co-Op Shared Important Items (Regra 4)
 if (connected && !is_on_menu() && global.ingame)
 {
-    if (global.spacejump == 1 && global.icemissiles == 0)
+    if ((global.item[5] == 1 || global.currentsuit >= 1) && global.icemissiles == 0)
         global.icemissiles = 1;
     
     var itemChanged = 0;

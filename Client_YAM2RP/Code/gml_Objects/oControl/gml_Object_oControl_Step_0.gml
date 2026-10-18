@@ -379,7 +379,7 @@ else
 {
     global.fxtimer = 0;
 }
-if (global.spacejump == 1)
+if (global.currentsuit >= 1 || global.item[5] == 1)
 {
     global.icemissiles = 1;
 }

@@ -982,7 +982,8 @@ switch (type_event)
                                             global.currentsuitPrev = global.currentsuit;
                                         }
                                         
-                                        popup_text(get_text("Items", "VariaSuit") + " " + get_text("GlobalOptions", "Enabled"));
+                                        global.icemissiles = 1;
+                                        popup_text("Varia suit and Ice Missiles " + get_text("GlobalOptions", "Enabled"));
                                         
                                         if (sfx_isplaying(4))
                                             sfx_stop(4);
@@ -1000,9 +1001,8 @@ switch (type_event)
                                     if (i == 6)
                                     {
                                         global.spacejump = 1;
-                                        global.icemissiles = 1;
                                         global.spacejumpPrev = global.spacejump;
-                                        popup_text("Space Jump & Ice Missiles " + get_text("GlobalOptions", "Enabled"));
+                                        popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
                                         
                                         if (sfx_isplaying(4))
                                             sfx_stop(4);
@@ -1927,7 +1927,8 @@ switch (type_event)
                         {
                             global.currentsuit = 1;
                             global.currentsuitPrev = global.currentsuit;
-                            popup_text(get_text("Items", "VariaSuit") + " " + get_text("GlobalOptions", "Enabled"));
+                            global.icemissiles = 1;
+                            popup_text("Varia suit and Ice Missiles " + get_text("GlobalOptions", "Enabled"));
                             
                             if (sfx_isplaying(4))
                                 sfx_stop(4);
@@ -1945,9 +1946,8 @@ switch (type_event)
                         if (i == 6)
                         {
                             global.spacejump = 1;
-                            global.icemissiles = 1;
                             global.spacejumpPrev = global.spacejump;
-                            popup_text("Space Jump & Ice Missiles " + get_text("GlobalOptions", "Enabled"));
+                            popup_text(get_text("Items", "SpaceJump") + " " + get_text("GlobalOptions", "Enabled"));
                             
                             if (sfx_isplaying(4))
                                 sfx_stop(4);

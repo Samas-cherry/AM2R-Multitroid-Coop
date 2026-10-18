@@ -15,7 +15,10 @@ if (other.smissile == 1)
 }
 else
 {
-    dmg = 10;
+    if (other.icemissiles || global.icemissiles)
+        dmg = 11;
+    else
+        dmg = 10;
     flashtime = 30;
 }
 myhealth -= dmg;

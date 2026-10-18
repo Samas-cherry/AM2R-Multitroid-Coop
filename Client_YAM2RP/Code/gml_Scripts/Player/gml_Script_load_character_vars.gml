@@ -241,14 +241,14 @@ if (is_array(global.itemsyncs))
     global.sbeam = global.itemsyncs[5] == 1 || (has_sax && global.itemsyncs[5] == 2);
     global.pbeam = global.itemsyncs[6] == 1 || (has_sax && global.itemsyncs[6] == 2);
 }
-global.icemissiles = (global.spacejump == 1);
-
 if (global.item[9] == 1)
     global.currentsuit = 2;
 else if (global.item[5] == 1)
     global.currentsuit = 1;
 else
     global.currentsuit = 0;
+
+global.icemissiles = (global.currentsuit >= 1 || global.item[5] == 1);
 
 if (is_array(global.item))
     global.itemPrev = array_clone(global.item);
