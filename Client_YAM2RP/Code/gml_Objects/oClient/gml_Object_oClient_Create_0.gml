@@ -1,4 +1,5 @@
 network_set_config(network_config_connect_timeout, 5000);
+network_set_config(network_config_use_non_blocking_socket, 1);
 strict_init(working_directory + "/multitroid/dictionary.json");
 if (!is_array(global.startingminors))
 {
@@ -41,6 +42,7 @@ global.coop_boss_damage_mult = 1.0;
 activeEnemyIds = -1;
 activeEnemyX = -1;
 activeEnemyY = -1;
+activeEnemyMap = -1;
 kicked = 0;
 kickReason = 255;
 banned = 0;
@@ -83,7 +85,7 @@ smissilesTimer = 10;
 pbombsTimer = 10;
 teleportTimer = 180;
 disconnectTimer = 900;
-pingTimer = 90;
+pingTimer = 60;
 currentItemsTimer = 120;
 resetTimer = -1;
 teleport = 0;
@@ -229,6 +231,7 @@ global.otherPlayerItems = ds_list_create();
 activeEnemyIds = ds_list_create();
 activeEnemyX = ds_list_create();
 activeEnemyY = ds_list_create();
+activeEnemyMap = ds_map_create();
 ds_grid_clear(global.onlineSend, -1);
 ds_grid_clear(global.onlineReceived, -1);
 

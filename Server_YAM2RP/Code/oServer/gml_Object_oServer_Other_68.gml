@@ -496,41 +496,46 @@ switch (type_event)
         var socket = ds_map_find_value(async_load, "id");
         var bufferSize = buffer_get_size(_buffer);
         buffer_seek(_buffer, buffer_seek_start, 0);
-        var bufferSizePacket = safe_buffer_read(_buffer, 6);
         
-        if (!is_real(bufferSizePacket) || global.bufferOverflow)
-            exit;
-        
-        if ((bufferSizePacket + 4) != bufferSize)
-            exit;
-        
-        team = 0;
-        
-        for (var i = 0; i < ds_list_size(idList); i++)
+        while (buffer_tell(_buffer) + 4 <= bufferSize)
         {
-            var arrList = ds_list_find_value(idList, i);
+            var packetStart = buffer_tell(_buffer);
+            var bufferSizePacket = safe_buffer_read(_buffer, 6);
             
-            if (arrList[0, 1] == socket)
+            if (!is_real(bufferSizePacket) || global.bufferOverflow || bufferSizePacket < 0)
+                break;
+            
+            var packetEnd = packetStart + 4 + bufferSizePacket;
+            if (packetEnd > bufferSize)
+                break;
+            
+            team = 0;
+            
+            for (var i = 0; i < ds_list_size(idList); i++)
             {
-                findID = ds_list_find_index(samusList, arrList[0, 0]);
+                var arrList = ds_list_find_value(idList, i);
                 
-                if (findID >= 0)
-                    team = 1;
-                
-                findID = ds_list_find_index(saxList, arrList[0, 0]);
-                
-                if (findID >= 0)
-                    team = 2;
+                if (arrList[0, 1] == socket)
+                {
+                    findID = ds_list_find_index(samusList, arrList[0, 0]);
+                    
+                    if (findID >= 0)
+                        team = 1;
+                    
+                    findID = ds_list_find_index(saxList, arrList[0, 0]);
+                    
+                    if (findID >= 0)
+                        team = 2;
+                }
             }
-        }
-        
-        msgid = safe_buffer_read(_buffer, 1);
-        
-        if (global.bufferOverflow)
-            exit;
-        
-        switch (msgid)
-        {
+            
+            msgid = safe_buffer_read(_buffer, 1);
+            
+            if (global.bufferOverflow)
+                break;
+            
+            switch (msgid)
+            {
             case 254:
                 var clientID = safe_buffer_read(_buffer, 1);
                 var sax = safe_buffer_read(_buffer, 1);
@@ -3595,7 +3600,10 @@ switch (type_event)
                 break;
         }
         
-        break;
+        buffer_seek(_buffer, buffer_seek_start, packetEnd);
+    }
+    
+    break;
 }
 
 if (ds_map_exists(posMap, banSocket) && !posMapModified)

@@ -12,19 +12,24 @@ switch (type_event)
         var _buffer = ds_map_find_value(async_load, "buffer");
         var bufferSize = buffer_get_size(_buffer);
         buffer_seek(_buffer, buffer_seek_start, 0);
-        var bufferSizePacket = buffer_read(_buffer, buffer_s32);
         
-        if (!is_real(bufferSizePacket))
-            exit;
-        
-        if ((bufferSizePacket + 4) != bufferSize)
-            exit;
-        
-        msgid = buffer_read(_buffer, buffer_u8);
-        writelog("NET PACKET: msgid=" + string(msgid));
-        
-        switch (msgid)
+        while (buffer_tell(_buffer) + 4 <= bufferSize)
         {
+            var packetStart = buffer_tell(_buffer);
+            var bufferSizePacket = buffer_read(_buffer, buffer_s32);
+            
+            if (!is_real(bufferSizePacket) || bufferSizePacket < 0)
+                break;
+            
+            var packetEnd = packetStart + 4 + bufferSizePacket;
+            if (packetEnd > bufferSize)
+                break;
+            
+            msgid = buffer_read(_buffer, buffer_u8);
+            writelog("NET PACKET: msgid=" + string(msgid));
+            
+            switch (msgid)
+            {
             case 254:
                 var clientID = buffer_read(_buffer, buffer_u8);
                 
@@ -1733,20 +1738,25 @@ switch (type_event)
                         var curScale = buffer_read(_buffer, buffer_s8);
                         var curHP = buffer_read(_buffer, buffer_s16);
                         
-                        with (oEnemy)
+                        var ek = string(eXStart) + "_" + string(eYStart);
+                        if (ds_map_exists(activeEnemyMap, ek))
                         {
-                            if (round(xstart) == eXStart && round(ystart) == eYStart)
+                            var eid = ds_map_find_value(activeEnemyMap, ek);
+                            if (instance_exists(eid))
                             {
-                                sync_target_x = curX;
-                                sync_target_y = curY;
-                                sync_target_scale = curScale;
-                                myhealth = curHP;
-                                
-                                if (!sync_active || point_distance(x, y, curX, curY) > 48)
+                                with (eid)
                                 {
-                                    x = curX;
-                                    y = curY;
-                                    sync_active = 1;
+                                    sync_target_x = curX;
+                                    sync_target_y = curY;
+                                    sync_target_scale = curScale;
+                                    myhealth = curHP;
+                                    
+                                    if (!sync_active || point_distance(x, y, curX, curY) > 48)
+                                    {
+                                        x = curX;
+                                        y = curY;
+                                        sync_active = 1;
+                                    }
                                 }
                             }
                         }
@@ -2576,4 +2586,7 @@ switch (type_event)
                     global.event[308] = 1;
                 break;
         }
+        buffer_seek(_buffer, buffer_seek_start, packetEnd);
+    }
+    break;
 }

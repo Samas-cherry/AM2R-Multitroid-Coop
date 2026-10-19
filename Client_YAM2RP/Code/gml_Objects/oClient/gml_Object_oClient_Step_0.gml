@@ -288,8 +288,11 @@ if (connected && !is_on_menu() && global.ingame)
         ds_list_clear(activeEnemyIds);
         ds_list_clear(activeEnemyX);
         ds_list_clear(activeEnemyY);
+        ds_map_clear(activeEnemyMap);
         with (oEnemy)
         {
+            var ek = string(round(xstart)) + "_" + string(round(ystart));
+            ds_map_add(other.activeEnemyMap, ek, id);
             ds_list_add(other.activeEnemyIds, id);
             ds_list_add(other.activeEnemyX, round(xstart));
             ds_list_add(other.activeEnemyY, round(ystart));
@@ -316,6 +319,8 @@ if (connected && !is_on_menu() && global.ingame)
                 sync_target_y = y;
                 sync_target_scale = image_xscale;
                 sync_active = 0;
+                var ek = string(round(xstart)) + "_" + string(round(ystart));
+                ds_map_add(other.activeEnemyMap, ek, id);
                 ds_list_add(other.activeEnemyIds, id);
                 ds_list_add(other.activeEnemyX, round(xstart));
                 ds_list_add(other.activeEnemyY, round(ystart));
@@ -332,6 +337,9 @@ if (connected && !is_on_menu() && global.ingame)
         {
             var ex = ds_list_find_value(activeEnemyX, i);
             var ey = ds_list_find_value(activeEnemyY, i);
+            var ek = string(ex) + "_" + string(ey);
+            if (ds_map_exists(activeEnemyMap, ek))
+                ds_map_delete(activeEnemyMap, ek);
             
             ds_list_delete(activeEnemyIds, i);
             ds_list_delete(activeEnemyX, i);
@@ -356,7 +364,7 @@ if (connected && !is_on_menu() && global.ingame)
         enemySyncTimer--;
         if (enemySyncTimer <= 0)
         {
-            enemySyncTimer = 3;
+            enemySyncTimer = 6;
             var eCount = instance_number(oEnemy);
             if (eCount <= 60)
             {
@@ -661,7 +669,7 @@ if (disconnectTimer <= 0)
 
 if (pingTimer <= 0)
 {
-    pingTimer = 5;
+    pingTimer = 60;
     buffer_delete(buffer);
     var size = 1024;
     var type = 1;

@@ -47,6 +47,8 @@ if (!noName)
         ds_list_destroy(activeEnemyX);
     if (activeEnemyY != -1 && ds_exists(activeEnemyY, ds_type_list))
         ds_list_destroy(activeEnemyY);
+    if (activeEnemyMap != -1 && ds_exists(activeEnemyMap, ds_type_map))
+        ds_map_destroy(activeEnemyMap);
 }
 
 global.canConnect = 0;
