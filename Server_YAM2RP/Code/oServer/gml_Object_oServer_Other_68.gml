@@ -72,6 +72,7 @@ if (findIP >= 0 || findKickID >= 0)
     if (findKickID >= 0)
         ds_list_delete(kickList, findKickID);
     
+    global.kickReason = 0;
     exit;
 }
 
@@ -494,20 +495,25 @@ switch (type_event)
     case 3:
         var _buffer = ds_map_find_value(async_load, "buffer");
         var socket = ds_map_find_value(async_load, "id");
-        var bufferSize = buffer_get_size(_buffer);
+        var streamSize = ds_map_find_value(async_load, "size");
+        if (is_undefined(streamSize) || streamSize <= 0)
+            streamSize = buffer_get_size(_buffer);
+        var bufferSize = streamSize;
         buffer_seek(_buffer, buffer_seek_start, 0);
         
-        while (buffer_tell(_buffer) + 4 <= bufferSize)
+        while (buffer_tell(_buffer) + 4 <= streamSize)
         {
             var packetStart = buffer_tell(_buffer);
             var bufferSizePacket = safe_buffer_read(_buffer, 6);
             
-            if (!is_real(bufferSizePacket) || global.bufferOverflow || bufferSizePacket < 0)
+            if (!is_real(bufferSizePacket) || global.bufferOverflow || bufferSizePacket <= 0)
                 break;
             
             var packetEnd = packetStart + 4 + bufferSizePacket;
-            if (packetEnd > bufferSize)
+            if (packetEnd > streamSize)
                 break;
+            
+            bufferSize = bufferSizePacket + 4;
             
             team = 0;
             
@@ -3599,6 +3605,9 @@ switch (type_event)
                 buffer_delete(fwdDrop);
                 break;
         }
+        
+        if (packetEnd >= streamSize)
+            break;
         
         buffer_seek(_buffer, buffer_seek_start, packetEnd);
     }

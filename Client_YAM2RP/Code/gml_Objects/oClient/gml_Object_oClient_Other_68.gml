@@ -10,20 +10,25 @@ switch (type_event)
 {
     case 3:
         var _buffer = ds_map_find_value(async_load, "buffer");
-        var bufferSize = buffer_get_size(_buffer);
+        var streamSize = ds_map_find_value(async_load, "size");
+        if (is_undefined(streamSize) || streamSize <= 0)
+            streamSize = buffer_get_size(_buffer);
+        var bufferSize = streamSize;
         buffer_seek(_buffer, buffer_seek_start, 0);
         
-        while (buffer_tell(_buffer) + 4 <= bufferSize)
+        while (buffer_tell(_buffer) + 4 <= streamSize)
         {
             var packetStart = buffer_tell(_buffer);
             var bufferSizePacket = buffer_read(_buffer, buffer_s32);
             
-            if (!is_real(bufferSizePacket) || bufferSizePacket < 0)
+            if (!is_real(bufferSizePacket) || bufferSizePacket <= 0)
                 break;
             
             var packetEnd = packetStart + 4 + bufferSizePacket;
-            if (packetEnd > bufferSize)
+            if (packetEnd > streamSize)
                 break;
+            
+            bufferSize = bufferSizePacket + 4;
             
             msgid = buffer_read(_buffer, buffer_u8);
             writelog("NET PACKET: msgid=" + string(msgid));
@@ -2586,6 +2591,9 @@ switch (type_event)
                     global.event[308] = 1;
                 break;
         }
+        if (packetEnd >= streamSize)
+            break;
+        
         buffer_seek(_buffer, buffer_seek_start, packetEnd);
     }
     break;
