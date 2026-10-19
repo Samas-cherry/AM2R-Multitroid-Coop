@@ -1,5 +1,4 @@
 network_set_config(network_config_connect_timeout, 5000);
-network_set_config(network_config_use_non_blocking_socket, 1);
 strict_init(working_directory + "/multitroid/dictionary.json");
 if (!is_array(global.startingminors))
 {

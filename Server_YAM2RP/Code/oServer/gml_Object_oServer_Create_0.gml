@@ -1,7 +1,6 @@
 banList = ds_list_create();
 kickList = ds_list_create();
 randomize();
-network_set_config(network_config_use_non_blocking_socket, 1);
 strict_init("dictionary.json");
 canChange = 1;
 var type = 0;
