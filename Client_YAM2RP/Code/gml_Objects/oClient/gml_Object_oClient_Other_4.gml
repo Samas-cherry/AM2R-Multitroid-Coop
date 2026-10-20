@@ -107,4 +107,6 @@ with (oEnemy)
     sync_target_y = y;
     sync_target_scale = image_xscale;
     sync_active = 0;
+    sync_vx = 0;
+    sync_vy = 0;
 }

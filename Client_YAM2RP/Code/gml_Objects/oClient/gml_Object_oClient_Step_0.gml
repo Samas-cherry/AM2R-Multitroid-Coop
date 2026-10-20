@@ -393,28 +393,28 @@ if (connected && !is_on_menu() && global.ingame)
         }
     }
 
-    // 3. Smooth Position Interpolation for Followers
+    // 3. Smooth Position Interpolation & Extrapolation for Followers
     if (!isRoomHost && connected && ds_list_size(roomList) > 0)
     {
         with (oEnemy)
         {
             if (sync_active)
             {
+                sync_target_x += sync_vx;
+                sync_target_y += sync_vy;
+                
                 var pDist = point_distance(x, y, sync_target_x, sync_target_y);
                 if (pDist > 48)
                 {
                     x = sync_target_x;
                     y = sync_target_y;
-                }
-                else if (pDist > 0.5)
-                {
-                    x = lerp(x, sync_target_x, 0.4);
-                    y = lerp(y, sync_target_y, 0.4);
+                    sync_vx = 0;
+                    sync_vy = 0;
                 }
                 else
                 {
-                    x = sync_target_x;
-                    y = sync_target_y;
+                    x = lerp(x, sync_target_x, 0.35);
+                    y = lerp(y, sync_target_y, 0.35);
                 }
                 image_xscale = sync_target_scale;
                 

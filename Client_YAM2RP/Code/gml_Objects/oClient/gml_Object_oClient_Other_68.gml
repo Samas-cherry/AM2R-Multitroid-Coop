@@ -4,7 +4,6 @@ if (!global.acceptPacket)
     exit;
 
 var type_event = ds_map_find_value(async_load, "type");
-writelog("NET START: type_event=" + string(type_event));
 
 switch (type_event)
 {
@@ -31,7 +30,6 @@ switch (type_event)
             bufferSize = bufferSizePacket + 4;
             
             msgid = buffer_read(_buffer, buffer_u8);
-            writelog("NET PACKET: msgid=" + string(msgid));
             
             switch (msgid)
             {
@@ -1751,6 +1749,16 @@ switch (type_event)
                             {
                                 with (eid)
                                 {
+                                    if (sync_active)
+                                    {
+                                        sync_vx = (curX - sync_target_x) / 6;
+                                        sync_vy = (curY - sync_target_y) / 6;
+                                    }
+                                    else
+                                    {
+                                        sync_vx = 0;
+                                        sync_vy = 0;
+                                    }
                                     sync_target_x = curX;
                                     sync_target_y = curY;
                                     sync_target_scale = curScale;
@@ -1760,6 +1768,8 @@ switch (type_event)
                                     {
                                         x = curX;
                                         y = curY;
+                                        sync_vx = 0;
+                                        sync_vy = 0;
                                         sync_active = 1;
                                     }
                                 }
@@ -1884,7 +1894,6 @@ switch (type_event)
                 break;
             
             case 50:
-                writelog("NET 50 START");
                 var resend = 0;
                 if (!is_array(global.item) || !is_array(global.itemPrev))
                 {
@@ -2227,11 +2236,9 @@ switch (type_event)
                     network_send_packet(socket, itemBuffer, buffer_tell(itemBuffer));
                     buffer_delete(itemBuffer);
                 }
-                writelog("NET 50 END");
                 break;
             
             case 51:
-                writelog("NET 51 START");
                 var resend = 0;
                 if (!is_array(global.event) || !is_array(global.eventPrev))
                 {
@@ -2284,11 +2291,9 @@ switch (type_event)
                     network_send_packet(socket, eventBuffer, buffer_tell(eventBuffer));
                     buffer_delete(eventBuffer);
                 }
-                writelog("NET 51 END");
                 break;
             
             case 52:
-                writelog("NET 52 START");
                 var resend = 0;
                 if (!is_array(global.metdead) || !is_array(global.metdeadPrev) || !is_array(global.event))
                 {
@@ -2442,11 +2447,9 @@ switch (type_event)
                     network_send_packet(socket, metdeadBuffer, buffer_tell(metdeadBuffer));
                     buffer_delete(metdeadBuffer);
                 }
-                writelog("NET 52 END");
                 break;
             
             case 53:
-                writelog("NET 53 START");
                 var part = buffer_read(_buffer, buffer_u8);
                 var resend = 0;
                 if (!is_array(global.dmap) || !is_array(global.dmapPrev))
@@ -2517,11 +2520,9 @@ switch (type_event)
                 if (instance_exists(oMapCursor) && surface_exists(oSS_Control.s_map))
                     surface_free(oSS_Control.s_map);
                 
-                writelog("NET 53 END");
                 break;
             
             case 61:
-                writelog("NET 61 START");
                 var temp_is;
                 temp_is[16] = 2;
                 for (var k = 0; k <= 16; k++)
@@ -2539,7 +2540,6 @@ switch (type_event)
                 }
                 global.startingminors = temp_sm;
                 global.awaitsyncs = 0;
-                writelog("NET 61 END");
                 break;
             
             case 62:
